@@ -14,6 +14,7 @@ import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.concurrent.TimeUnit;
@@ -200,18 +201,10 @@ public class UserPrefs
 
         if(bill.getWeeklyFlag()){
             current.add(Calendar.DAY_OF_WEEK,3);
-            if(current.after(due)){
-                payable = true;
-            }else{
-                payable = false;
-            }
+            payable = current.after(due);
         }else{
             current.add(Calendar.WEEK_OF_MONTH,1);
-            if(current.after(due)){
-                payable = true;
-            }else{
-                payable= false;
-            }
+            payable = current.after(due);
         }
 
     }
@@ -240,9 +233,7 @@ public class UserPrefs
         }else{
             String[] newindexes = indexesString.split("##");
 
-            for(String id: newindexes){
-                indexes.add(id);
-            }
+            Collections.addAll(indexes, newindexes);
 
         }
     }
@@ -429,7 +420,7 @@ public class UserPrefs
             String filePath = "log.txt";
 
             entry = entry + "###";
-            FileOutputStream fos = context.openFileOutput(filePath, context.MODE_APPEND);
+            FileOutputStream fos = context.openFileOutput(filePath, Context.MODE_APPEND);
             fos.write(entry.getBytes());
             fos.close();
 

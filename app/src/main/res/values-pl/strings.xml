@@ -79,6 +79,8 @@
 	<string name="incomeAmount_string">Przychód</string>
 	<string name="chooseCutoffDay_string">Wybierz datę graniczną</string>
 	<string name="incomeSetup_string">Przychody</string>
+    <string name="cash">Gotówka</string>
+
 
 
 </resources>

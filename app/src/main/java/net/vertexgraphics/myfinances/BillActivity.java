@@ -1,21 +1,14 @@
 package net.vertexgraphics.myfinances;
 
 
-
 import android.app.Dialog;
-import android.content.Context;
-
-import android.content.DialogInterface;
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import android.text.InputType;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
+import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -23,12 +16,13 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-//import com.google.android.gms.ads.AdRequest;
-//import com.google.android.gms.ads.AdView;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Objects;
 
 public class BillActivity extends AppCompatActivity implements View.OnClickListener
 {
@@ -51,9 +45,7 @@ public class BillActivity extends AppCompatActivity implements View.OnClickListe
     Bill currentBill;
     Bundle extras;
 
-    //AdView adView;
 
-    private CustomSoftKeyboard keyboard;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -62,30 +54,23 @@ public class BillActivity extends AppCompatActivity implements View.OnClickListe
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.bill);
-        toolbar= (Toolbar) findViewById(R.id.toolbar);
+        toolbar= findViewById(R.id.toolbar);
 
         toolbar.setTitle(getString(R.string.billDetails_string));
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         userPrefs= UserPrefs.getInstance(this);
 
-        //adView = (AdView) findViewById(R.id.adView);
-        //AdRequest adRequest = new AdRequest.Builder().build();
-        if(userPrefs.showAds && !BuildConfig.DEBUG) {
-        //    adView.loadAd(adRequest);
-        }
+        payButton = findViewById(R.id.payButton);
 
-        payButton = (Button) findViewById(R.id.payButton);
-
-
-        billNameText = (TextView) findViewById(R.id.billNameText);
-        billAmountText = (TextView) findViewById(R.id.billAmountText);
-        billFrequencyText = (TextView) findViewById(R.id.billFrequencyText);
-        billDoWText = (TextView) findViewById(R.id.billDoWText);
-        billDoMText = (TextView) findViewById(R.id.billDoMText);
-        billLastPaidText = (TextView) findViewById(R.id.billLastPaidText);
-        billDueDateText = (TextView) findViewById(R.id.billDueDateText);
+        billNameText = findViewById(R.id.billNameText);
+        billAmountText = findViewById(R.id.billAmountText);
+        billFrequencyText = findViewById(R.id.billFrequencyText);
+        billDoWText = findViewById(R.id.billDoWText);
+        billDoMText = findViewById(R.id.billDoMText);
+        billLastPaidText = findViewById(R.id.billLastPaidText);
+        billDueDateText = findViewById(R.id.billDueDateText);
 
         billNameText.setOnClickListener(this);
         billAmountText.setOnClickListener(this);
@@ -142,40 +127,6 @@ public class BillActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    @Override
-    protected void onResume()
-    {
-
-        super.onResume();
-
-      //  if(adView != null){
-       //     adView.resume();
-       // }
-    }
-
-    @Override
-    protected void onPause()
-    {
-       // if(adView != null){
-        //    adView.pause();
-       // }
-        super.onPause();
-    }
-
-    @Override
-    protected void onDestroy()
-    {
-       // if(adView != null){
-      //      adView.destroy();
-       // }
-        super.onDestroy();
-    }
-
-
-
-
-
-
 
     private void changeMade(){
         toolbar.getMenu().getItem(0).setEnabled(true);
@@ -207,139 +158,120 @@ public class BillActivity extends AppCompatActivity implements View.OnClickListe
     {
         super.onNavigateUp();
 
-        switch (item.getItemId()){
+        int itemId = item.getItemId();
+        if (itemId == R.id.save_bill) {
+            String billName;
+            float billAmount;
+            boolean freq;
+            int dom;
+            String dow;
+            long lastPaid;
+            long dueDate;
+            SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd");
+            Date date = new Date();
+            String lastPaidString = (String) billLastPaidText.getText();
+            String dueDateString = (String) billDueDateText.getText();
 
-            case R.id.save_bill:
-                String billName;
-                float billAmount;
-                boolean freq;
-                int dom;
-                String dow;
-                long lastPaid;
-                long dueDate;
-                SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd");
-                Date date = new Date();
-                String lastPaidString = (String) billLastPaidText.getText();
-                String dueDateString = (String) billDueDateText.getText();
 
+            billName = (String) billNameText.getText();
 
-                billName = (String) billNameText.getText();
+            try {
+                billAmount = Float.parseFloat((String) billAmountText.getText());
+            } catch (NumberFormatException e) {
+                billAmount = 0;
+            }
 
-                try{
-                    billAmount = Float.parseFloat((String)billAmountText.getText());
-                }catch(NumberFormatException e){
-                    billAmount = 0;
+            freq = billFrequencyText.getText().equals(getString(R.string.weekly_string));
+
+            try {
+                dom = Integer.parseInt((String) billDoMText.getText());
+            } catch (NumberFormatException e) {
+                dom = 0;
+            }
+            dow = (String) billDoWText.getText();
+
+            if (!lastPaidString.equals(getString(R.string.na_string))) {
+                try {
+                    date = parser.parse(lastPaidString);
+                } catch (ParseException ignored) {
                 }
+                lastPaid = date.getTime();
+            } else {
+                lastPaid = 0;
+            }
 
-                if(billFrequencyText.getText().equals(getString(R.string.weekly_string))){
-                    freq = true;
-                }else{
-                    freq = false;
+            if (!dueDateString.equals(getString(R.string.na_string))) {
+                try {
+                    date = parser.parse(dueDateString);
+
+                } catch (ParseException ignored) {
                 }
+                dueDate = date.getTime();
+            } else {
+                dueDate = 0;
+            }
 
-                try{
-                    dom = Integer.parseInt((String)billDoMText.getText());
-                }catch(NumberFormatException e){
-                    dom = 0;
-                }
-                dow = (String) billDoWText.getText();
-
-                if (!lastPaidString.equals(getString(R.string.na_string))){
-                    try
-                    {
-                        date = parser.parse(lastPaidString);
-                    }
-                    catch (ParseException ignored)
-                    {}
-                    lastPaid = date.getTime();
-                }else{
-                    lastPaid = 0;
-                }
-
-                if(!dueDateString.equals(getString(R.string.na_string))){
-                    try
-                    {
-                        date = parser.parse(dueDateString);
-
-                    }
-                    catch (ParseException ignored)
-                    {}
-                    dueDate = date.getTime();
-                }else{
-                    dueDate=0;
-                }
-
-                currentBill.setName(billName);
-                currentBill.setAmount(billAmount);
-                currentBill.setWeeklyFlag(freq);
-                currentBill.setDayOfMonth(dom);
-                currentBill.setDayOfWeek(dow);
-                currentBill.setDueDate(dueDate);
-                currentBill.setLastPaid(lastPaid);
+            currentBill.setName(billName);
+            currentBill.setAmount(billAmount);
+            currentBill.setWeeklyFlag(freq);
+            currentBill.setDayOfMonth(dom);
+            currentBill.setDayOfWeek(dow);
+            currentBill.setDueDate(dueDate);
+            currentBill.setLastPaid(lastPaid);
 
 
-                if(extras.getString("newBillFlag").equals("true")){
+            if (extras.getString("newBillFlag").equals("true")) {
 
 
-
-                    userPrefs.setBill(currentBill);
-                    userPrefs.addBill(currentBill);
-                    userPrefs.addId(String.valueOf(billId));
-                    userPrefs.saveIndexes();
-                    String logEntry = userPrefs.getTimeStamp(true)+" "+ getString(R.string.billSaved_string)+": "+currentBill.getName();
-                    userPrefs.writeLog(logEntry);
-
-                    Toast.makeText(this, getString(R.string.billSaved_string), Toast.LENGTH_SHORT).show();
-
-                }else if(extras.getString("newBillFlag").equals("false")){
-
-                    userPrefs.setBill(currentBill);
-                    for(Bill bill: userPrefs.bills){
-                        if(bill.getId()==billId)userPrefs.bills.set(userPrefs.bills.indexOf(bill), currentBill);
-                    }
-
-                    String logEntry = userPrefs.getTimeStamp(true)+" "+ getString(R.string.billChanged_string)+": "+currentBill.getName();
-                    userPrefs.writeLog(logEntry);
-
-                    Toast.makeText(this, getString(R.string.billChanged_string), Toast.LENGTH_SHORT).show();
-
-                }
-                finish();
-                break;
-            case R.id.pay_bill:
-                userPrefs.payBill(currentBill.getId());
-                String logEntry = userPrefs.getTimeStamp(true)+" "+ getString(R.string.paid_string)+" "+ currentBill.getAmount() + " - "+currentBill.getName();
-                userPrefs.writeLog(logEntry);
-                billLastPaidText.setText(userPrefs.getDateString(userPrefs.getBill(currentBill.getId()).getLastPaid()));
-                billDueDateText.setText(userPrefs.getDateString(userPrefs.getBill(currentBill.getId()).getDueDate()));
-                userPrefs.checkPayable(userPrefs.getBill(currentBill.getId()));
-                toolbar.getMenu().getItem(1).setEnabled(userPrefs.payable);
-                payButton.setEnabled(userPrefs.payable);
-                break;
-            case R.id.delete_bill:
-                userPrefs.deleteBill(billId);
-                userPrefs.deleteId(String.valueOf(billId));
+                userPrefs.setBill(currentBill);
+                userPrefs.addBill(currentBill);
+                userPrefs.addId(String.valueOf(billId));
                 userPrefs.saveIndexes();
+                String logEntry = userPrefs.getTimeStamp(true) + " " + getString(R.string.billSaved_string) + ": " + currentBill.getName();
+                userPrefs.writeLog(logEntry);
 
-                String logEntry2 = userPrefs.getTimeStamp(true)+" "+ getString(R.string.billDeleted_string)+": "+currentBill.getName();
-                userPrefs.writeLog(logEntry2);
+                Toast.makeText(this, getString(R.string.billSaved_string), Toast.LENGTH_SHORT).show();
 
-                finish();
+            } else if (extras.getString("newBillFlag").equals("false")) {
 
-                break;
+                userPrefs.setBill(currentBill);
+                for (Bill bill : userPrefs.bills) {
+                    if (bill.getId() == billId)
+                        userPrefs.bills.set(userPrefs.bills.indexOf(bill), currentBill);
+                }
+
+                String logEntry = userPrefs.getTimeStamp(true) + " " + getString(R.string.billChanged_string) + ": " + currentBill.getName();
+                userPrefs.writeLog(logEntry);
+
+                Toast.makeText(this, getString(R.string.billChanged_string), Toast.LENGTH_SHORT).show();
+
+            }
+            finish();
+        } else if (itemId == R.id.pay_bill) {
+            userPrefs.payBill(currentBill.getId());
+            String logEntry = userPrefs.getTimeStamp(true) + " " + getString(R.string.paid_string) + " " + currentBill.getAmount() + " - " + currentBill.getName();
+            userPrefs.writeLog(logEntry);
+            billLastPaidText.setText(userPrefs.getDateString(userPrefs.getBill(currentBill.getId()).getLastPaid()));
+            billDueDateText.setText(userPrefs.getDateString(userPrefs.getBill(currentBill.getId()).getDueDate()));
+            userPrefs.checkPayable(userPrefs.getBill(currentBill.getId()));
+            toolbar.getMenu().getItem(1).setEnabled(userPrefs.payable);
+            payButton.setEnabled(userPrefs.payable);
+        } else if (itemId == R.id.delete_bill) {
+            userPrefs.deleteBill(billId);
+            userPrefs.deleteId(String.valueOf(billId));
+            userPrefs.saveIndexes();
+
+            String logEntry2 = userPrefs.getTimeStamp(true) + " " + getString(R.string.billDeleted_string) + ": " + currentBill.getName();
+            userPrefs.writeLog(logEntry2);
+
+            finish();
         }
         return true;
     }
 
 
 
-    public void showSoftKeyboard(View view) {
-        if (view.requestFocus()) {
-            InputMethodManager imm = (InputMethodManager)
-                    getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
-        }
-    }
+
 
     @Override
     public void onClick(View v){
@@ -352,240 +284,150 @@ public class BillActivity extends AppCompatActivity implements View.OnClickListe
         Button dialogCancelButton;
 
 
+        int id = v.getId();
+        if (id == R.id.billNameText) {
+            dialog.setContentView(R.layout.edit_name_dialog);
+            Objects.requireNonNull(dialog.getWindow()).setGravity(Gravity.BOTTOM);
 
-        switch (v.getId()){
+            dialogLabel = dialog.findViewById(R.id.editnamedialogLabel);
+            dialogLabel.setText(getString(R.string.billName_string));
+            dialogEditText = dialog.findViewById(R.id.editnamedialogEditText);
+            dialogEditText.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
 
-            case R.id.billNameText:
+            dialogAcceptButton = dialog.findViewById(R.id.editnamedialogButton1);
+            dialogCancelButton = dialog.findViewById(R.id.editnamedialogButton2);
+            dialogAcceptButton.setOnClickListener(v110 -> {
+                billNameText.setText(dialogEditText.getText().toString());
+                changeMade();
+                dialog.dismiss();
+            });
+            dialogCancelButton.setOnClickListener(v19 -> dialog.dismiss());
 
-                dialog.setContentView(R.layout.edit_name_dialog);
-                dialog.getWindow().setGravity(Gravity.BOTTOM);
+            dialog.setOnShowListener(p1 -> {
+                dialogEditText.requestFocus();
+                dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+            });
 
-                dialogLabel = (TextView) dialog.findViewById(R.id.editnamedialogLabel);
-                dialogLabel.setText(getString(R.string.billName_string));
-                dialogEditText = (EditText) dialog.findViewById(R.id.editnamedialogEditText);
-                dialogEditText.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
-                keyboard = new CustomSoftKeyboard(dialog, R.id.keyboard, R.layout.qwerty_keboard, false, R.id.editnamedialogEditText);
-                keyboard.registerEditText(dialogEditText);
-                dialogAcceptButton = (Button) dialog.findViewById(R.id.editnamedialogButton1);
-                dialogCancelButton = (Button) dialog.findViewById(R.id.editnamedialogButton2);
-                dialogAcceptButton.setOnClickListener(new View.OnClickListener(){
-                    @Override
-                    public void onClick(View v){
-                        billNameText.setText(dialogEditText.getText().toString());
-                        changeMade();
-                        dialog.dismiss();
-                    }
-                });
-                dialogCancelButton.setOnClickListener(new View.OnClickListener(){
-                    @Override
-                    public void onClick(View v){
-                        dialog.dismiss();
-                    }
-                });
+            dialog.show();
+        } else if (id == R.id.billAmountText) {
+            dialog.setContentView(R.layout.edit_name_dialog);
+            Objects.requireNonNull(dialog.getWindow()).setGravity(Gravity.BOTTOM);
+            dialogLabel = dialog.findViewById(R.id.editnamedialogLabel);
+            dialogLabel.setText(getString(R.string.billAmount_string));
+            dialogEditText = dialog.findViewById(R.id.editnamedialogEditText);
+            dialogEditText.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_CLASS_NUMBER);
 
-                dialog.setOnShowListener(new Dialog.OnShowListener(){
+            dialogAcceptButton = dialog.findViewById(R.id.editnamedialogButton1);
+            dialogCancelButton = dialog.findViewById(R.id.editnamedialogButton2);
+            dialogAcceptButton.setOnClickListener(v18 -> {
+                billAmountText.setText(dialogEditText.getText().toString());
+                changeMade();
+                dialog.dismiss();
+            });
+            dialogCancelButton.setOnClickListener(v17 -> dialog.dismiss());
+            dialog.setOnShowListener(p1 -> {
+                dialogEditText.requestFocus();
+                dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 
-                    @Override
-                    public void onShow(DialogInterface p1)
-                    {
-                        //showSoftKeyboard(dialogEditText);
-                    }
+            });
 
+            dialog.show();
+        } else if (id == R.id.billFrequencyText) {
+            dialog.setContentView(R.layout.spinner_dialog);
+            dialogLabel = dialog.findViewById(R.id.spinnerdialogLabel);
+            dialogLabel.setText(getString(R.string.billFreq_string));
+            String[] frequency = {getString(R.string.monthly_string), getString(R.string.weekly_string)};
 
-                });
-                dialog.setOnKeyListener(new Dialog.OnKeyListener(){
+            dialogSpinner = dialog.findViewById(R.id.spinnerdialogSpinner);
+            ArrayAdapter<CharSequence> adapterFrequency = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, frequency);
+            adapterFrequency.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            dialogSpinner.setAdapter(adapterFrequency);
+            dialogAcceptButton = dialog.findViewById(R.id.spinnerdialogButton1);
+            dialogCancelButton = dialog.findViewById(R.id.spinnerdialogButton2);
+            dialogAcceptButton.setOnClickListener(v16 -> {
+                String result = dialogSpinner.getSelectedItem().toString();
+                billFrequencyText.setText(result);
+                if (result.equals(getString(R.string.monthly_string))) {
+                    billDoMText.setClickable(true);
+                    billDoWText.setClickable(false);
+                    billDoWText.setText(getString(R.string.na_string));
+                    billDoMText.setText("1");
+                    currentBill.setDueDate(userPrefs.getDueDate(false, Integer.parseInt(billDoMText.getText().toString()), ""));
+                    billDueDateText.setText(userPrefs.getDateString(currentBill.getDueDate()));
+                } else {
+                    billDoMText.setClickable(false);
+                    billDoWText.setClickable(true);
+                    billDoMText.setText(getString(R.string.na_string));
+                    billDoWText.setText(getString(R.string.monday_string));
+                    currentBill.setDueDate(userPrefs.getDueDate(true, 0, billDoWText.getText().toString()));
 
-                    @Override
-                    public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
-                        if (keyCode == KeyEvent.KEYCODE_BACK) {
-                            keyboard.hideCustomKeyboard();
-                        }
-                        return true;
-                    }
-                });
-                dialog.show();
-                break;
-            case R.id.billAmountText:
+                    billDueDateText.setText(userPrefs.getDateString(currentBill.getDueDate()));
 
-                dialog.setContentView(R.layout.edit_name_dialog);
-                dialog.getWindow().setGravity(Gravity.BOTTOM);
-                dialogLabel = (TextView) dialog.findViewById(R.id.editnamedialogLabel);
-                dialogLabel.setText(getString(R.string.billAmount_string));
-                dialogEditText = (EditText) dialog.findViewById(R.id.editnamedialogEditText);
-                dialogEditText.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL);
-                keyboard = new CustomSoftKeyboard(dialog, R.id.keyboard, R.layout.qwerty_keboard, true, R.id.editnamedialogEditText);
-                keyboard.registerEditText(dialogEditText);
-                dialogAcceptButton = (Button) dialog.findViewById(R.id.editnamedialogButton1);
-                dialogCancelButton = (Button) dialog.findViewById(R.id.editnamedialogButton2);
-                dialogAcceptButton.setOnClickListener(new View.OnClickListener(){
-                    @Override
-                    public void onClick(View v){
-                        billAmountText.setText(dialogEditText.getText().toString());
-                        changeMade();
-                        dialog.dismiss();
-                    }
-                });
-                dialogCancelButton.setOnClickListener(new View.OnClickListener(){
-                    @Override
-                    public void onClick(View v){
-                        dialog.dismiss();
-                    }
-                });
-                dialog.setOnShowListener(new Dialog.OnShowListener(){
+                }
+                changeMade();
+                dialog.dismiss();
 
-                    @Override
-                    public void onShow(DialogInterface p1)
-                    {
-                        //showSoftKeyboard(dialogEditText);
-                    }
+            });
+            dialogCancelButton.setOnClickListener(v15 -> dialog.dismiss());
+            dialog.show();
+        } else if (id == R.id.billDoWText) {
+            dialog.setContentView(R.layout.spinner_dialog);
+            dialogLabel = dialog.findViewById(R.id.spinnerdialogLabel);
+            dialogLabel.setText(getString(R.string.chooseDow_string));
+            String[] weekday = {getString(R.string.monday_string), getString(R.string.tuesday_string), getString(R.string.wednesday_string), getString(R.string.thursday_string), getString(R.string.friday_string), getString(R.string.saturday_string), getString(R.string.sunday_string)};
 
+            dialogSpinner = dialog.findViewById(R.id.spinnerdialogSpinner);
+            ArrayAdapter<CharSequence> adapterDoW = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, weekday);
+            adapterDoW.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            dialogSpinner.setAdapter(adapterDoW);
+            dialogAcceptButton = dialog.findViewById(R.id.spinnerdialogButton1);
+            dialogCancelButton = dialog.findViewById(R.id.spinnerdialogButton2);
+            dialogAcceptButton.setOnClickListener(v14 -> {
+                billDoWText.setText(dialogSpinner.getSelectedItem().toString());
+                currentBill.setDueDate(userPrefs.getDueDate(true, 0, billDoWText.getText().toString()));
 
-                });
-                dialog.setOnKeyListener(new Dialog.OnKeyListener(){
+                billDueDateText.setText(userPrefs.getDateString(currentBill.getDueDate()));
+                changeMade();
+                dialog.dismiss();
+            });
+            dialogCancelButton.setOnClickListener(v13 -> dialog.dismiss());
+            dialog.show();
+        } else if (id == R.id.billDoMText) {
+            dialog.setContentView(R.layout.spinner_dialog);
+            dialogLabel = dialog.findViewById(R.id.spinnerdialogLabel);
+            dialogLabel.setText(getString(R.string.chooseDom_string));
+            String[] dayOfMonth = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28"};
 
-                    @Override
-                    public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
-                        if (keyCode == KeyEvent.KEYCODE_BACK) {
-                            keyboard.hideCustomKeyboard();
-                        }
-                        return true;
-                    }
-                });
-                dialog.show();
-                break;
-            case R.id.billFrequencyText:
-
-                dialog.setContentView(R.layout.spinner_dialog);
-                dialogLabel = (TextView) dialog.findViewById(R.id.spinnerdialogLabel);
-                dialogLabel.setText(getString(R.string.billFreq_string));
-                String frequency[] = {getString(R.string.monthly_string), getString(R.string.weekly_string)};
-
-                dialogSpinner = (Spinner) dialog.findViewById(R.id.spinnerdialogSpinner);
-                ArrayAdapter<CharSequence> adapterFrequency = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item, frequency);
-                adapterFrequency.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                dialogSpinner.setAdapter(adapterFrequency);
-                dialogAcceptButton = (Button) dialog.findViewById(R.id.spinnerdialogButton1);
-                dialogCancelButton = (Button) dialog.findViewById(R.id.spinnerdialogButton2);
-                dialogAcceptButton.setOnClickListener(new View.OnClickListener(){
-                    @Override
-                    public void onClick(View v){
-                        String result= dialogSpinner.getSelectedItem().toString();
-                        billFrequencyText.setText(result);
-                        if(result.equals(getString(R.string.monthly_string))){
-                            billDoMText.setClickable(true);
-                            billDoWText.setClickable(false);
-                            billDoWText.setText(getString(R.string.na_string));
-                            billDoMText.setText("1");
-                            currentBill.setDueDate(userPrefs.getDueDate(false, Integer.parseInt(billDoMText.getText().toString()), ""));
-                            billDueDateText.setText(userPrefs.getDateString(currentBill.getDueDate()));
-                        }else{
-                            billDoMText.setClickable(false);
-                            billDoWText.setClickable(true);
-                            billDoMText.setText(getString(R.string.na_string));
-                            billDoWText.setText(getString(R.string.monday_string));
-                            currentBill.setDueDate(userPrefs.getDueDate(true, 0, billDoWText.getText().toString()));
-
-                            billDueDateText.setText(userPrefs.getDateString(currentBill.getDueDate()));
-
-                        }
-                        changeMade();
-                        dialog.dismiss();
-
-                    }
-                });
-                dialogCancelButton.setOnClickListener(new View.OnClickListener(){
-                    @Override
-                    public void onClick(View v){
-                        dialog.dismiss();
-                    }
-                });
-                dialog.show();
-                break;
-            case R.id.billDoWText:
-                dialog.setContentView(R.layout.spinner_dialog);
-                dialogLabel = (TextView) dialog.findViewById(R.id.spinnerdialogLabel);
-                dialogLabel.setText(getString(R.string.chooseDow_string));
-                String dayofweek[] = {getString(R.string.monday_string), getString(R.string.tuesday_string), getString(R.string.wednesday_string), getString(R.string.thursday_string),getString(R.string.friday_string), getString(R.string.saturday_string), getString(R.string.sunday_string)};
-
-                dialogSpinner = (Spinner) dialog.findViewById(R.id.spinnerdialogSpinner);
-                ArrayAdapter<CharSequence> adapterDoW = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item, dayofweek);
-                adapterDoW.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                dialogSpinner.setAdapter(adapterDoW);
-                dialogAcceptButton = (Button) dialog.findViewById(R.id.spinnerdialogButton1);
-                dialogCancelButton = (Button) dialog.findViewById(R.id.spinnerdialogButton2);
-                dialogAcceptButton.setOnClickListener(new View.OnClickListener(){
-                    @Override
-                    public void onClick(View v){
-                        billDoWText.setText(dialogSpinner.getSelectedItem().toString());
-                        currentBill.setDueDate(userPrefs.getDueDate(true, 0, billDoWText.getText().toString()));
-
-                        billDueDateText.setText(userPrefs.getDateString(currentBill.getDueDate()));
-                        changeMade();
-                        dialog.dismiss();
-                    }
-                });
-                dialogCancelButton.setOnClickListener(new View.OnClickListener(){
-                    @Override
-                    public void onClick(View v){
-                        dialog.dismiss();
-                    }
-                });
-                dialog.show();
-                break;
-            case R.id.billDoMText:
-                dialog.setContentView(R.layout.spinner_dialog);
-                dialogLabel = (TextView) dialog.findViewById(R.id.spinnerdialogLabel);
-                dialogLabel.setText(getString(R.string.chooseDom_string));
-                String dayofmonth[] = {"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28"};
-
-                dialogSpinner = (Spinner) dialog.findViewById(R.id.spinnerdialogSpinner);
-                ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(this, android.R.layout.simple_spinner_item, dayofmonth);
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                dialogSpinner.setAdapter(adapter);
-                dialogAcceptButton = (Button) dialog.findViewById(R.id.spinnerdialogButton1);
-                dialogCancelButton = (Button) dialog.findViewById(R.id.spinnerdialogButton2);
-                dialogAcceptButton.setOnClickListener(new View.OnClickListener(){
-                    @Override
-                    public void onClick(View v){
-                        billDoMText.setText(dialogSpinner.getSelectedItem().toString());
-                        currentBill.setDueDate(userPrefs.getDueDate(false, Integer.parseInt(billDoMText.getText().toString()), ""));
-                        billDueDateText.setText(userPrefs.getDateString(currentBill.getDueDate()));
-                        changeMade();
-                        dialog.dismiss();
-                    }
-                });
-                dialogCancelButton.setOnClickListener(new View.OnClickListener(){
-                    @Override
-                    public void onClick(View v){
-                        dialog.dismiss();
-                    }
-                });
-                dialog.show();
-                break;
-            case R.id.payButton:
-                userPrefs.payBill(currentBill.getId());
-                String logEntry = userPrefs.getTimeStamp(true)+" "+ getString(R.string.paid_string)+" "+ currentBill.getAmount() + " - "+currentBill.getName();
-                userPrefs.writeLog(logEntry);
-                billLastPaidText.setText(userPrefs.getDateString(userPrefs.getBill(currentBill.getId()).getLastPaid()));
-                billDueDateText.setText(userPrefs.getDateString(userPrefs.getBill(currentBill.getId()).getDueDate()));
-                userPrefs.checkPayable(userPrefs.getBill(currentBill.getId()));
-                toolbar.getMenu().getItem(1).setEnabled(userPrefs.payable);
-                payButton.setEnabled(userPrefs.payable);
-                break;
-
+            dialogSpinner = dialog.findViewById(R.id.spinnerdialogSpinner);
+            ArrayAdapter<CharSequence> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, dayOfMonth);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            dialogSpinner.setAdapter(adapter);
+            dialogAcceptButton = dialog.findViewById(R.id.spinnerdialogButton1);
+            dialogCancelButton = dialog.findViewById(R.id.spinnerdialogButton2);
+            dialogAcceptButton.setOnClickListener(v12 -> {
+                billDoMText.setText(dialogSpinner.getSelectedItem().toString());
+                currentBill.setDueDate(userPrefs.getDueDate(false, Integer.parseInt(billDoMText.getText().toString()), ""));
+                billDueDateText.setText(userPrefs.getDateString(currentBill.getDueDate()));
+                changeMade();
+                dialog.dismiss();
+            });
+            dialogCancelButton.setOnClickListener(v1 -> dialog.dismiss());
+            dialog.show();
+        } else if (id == R.id.payButton) {
+            userPrefs.payBill(currentBill.getId());
+            String logEntry = userPrefs.getTimeStamp(true) + " " + getString(R.string.paid_string) + " " + currentBill.getAmount() + " - " + currentBill.getName();
+            userPrefs.writeLog(logEntry);
+            billLastPaidText.setText(userPrefs.getDateString(userPrefs.getBill(currentBill.getId()).getLastPaid()));
+            billDueDateText.setText(userPrefs.getDateString(userPrefs.getBill(currentBill.getId()).getDueDate()));
+            userPrefs.checkPayable(userPrefs.getBill(currentBill.getId()));
+            toolbar.getMenu().getItem(1).setEnabled(userPrefs.payable);
+            payButton.setEnabled(userPrefs.payable);
         }
 
 
     }
 
-    @Override
-    public void onBackPressed() {
-        if(keyboard!= null && keyboard.isCustomKeyboardVisible()){
-            keyboard.hideCustomKeyboard();
-        }else {
-            super.onBackPressed();
-        }
-    }
+    
 }
 
 

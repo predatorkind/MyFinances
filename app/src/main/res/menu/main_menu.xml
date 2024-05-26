@@ -29,12 +29,5 @@
 	<item
 		android:id="@+id/income_setup"
 		android:title="@string/setupIncome_string"/>
-	<item
-		android:id="@+id/remove_ads"
-		android:title="@string/removeAds_string"/>
-	<!--
-	<item
-		android:id="@+id/reset"
-		android:title="Reset"/>
-    -->
+
 </menu>

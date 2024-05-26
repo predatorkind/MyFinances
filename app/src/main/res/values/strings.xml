@@ -79,6 +79,7 @@
 	<string name="incomeAmount_string">Income Amount</string>
 	<string name="chooseCutoffDay_string">Choose Cutoff Day</string>
 	<string name="incomeSetup_string">Income Setup</string>
+    <string name="cash">Cash</string>
 
 
 </resources>

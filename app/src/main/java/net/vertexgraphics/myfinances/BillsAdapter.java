@@ -18,8 +18,8 @@ import java.util.ArrayList;
 
 class BillsAdapter extends ArrayAdapter<Bill>
 {
-    private Context context;
-    private UserPrefs userPrefs;
+    private final Context context;
+    private final UserPrefs userPrefs;
     BillsAdapter(Context context, ArrayList<Bill> bills){
 
         super(context, 0, bills);
@@ -39,8 +39,8 @@ class BillsAdapter extends ArrayAdapter<Bill>
         }
         userPrefs.checkPayable(bill);
 
-        TextView listItemText = (TextView) convertView.findViewById(R.id.billListItemText);
-        Button payBillButton = (Button) convertView.findViewById(R.id.billListItemButton);
+        TextView listItemText = convertView.findViewById(R.id.billListItemText);
+        Button payBillButton = convertView.findViewById(R.id.billListItemButton);
         payBillButton.setEnabled(false);
 
         if(userPrefs.payable)payBillButton.setEnabled(true);
