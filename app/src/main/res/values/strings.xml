@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">My Finances</string>
+    <string name="hello_world">Hello world!</string>
+	<string name="food_string">Food</string>
+	<string name="shopping_string">Shopping</string>
+	<string name="installment_string">Installment</string>
+	<string name="savings_string">Savings</string>
+	<string name="transfer_string">Transfer</string>
+	
+	<string name="other_string">Other</string>
+	
+	<string name="overtime_string">Overtime</string>
+	<string name="loan_string">Loan</string>
+	<string name="winnings_string">Winnings</string>
+	
+	<string name="addFunds_string">Add Funds</string>
+	<string name="subFunds_string">Deduct Funds</string>
+	<string name="setFunds_string">Set Funds</string>
+	<string name="invalidAmount_string">Invalid Amount!</string>
+	<string name="yourCurBal_string">Your current balance.</string>
+	<string name="posOverOf_string">Possible overdraft of: </string>
+	<string name="fundsAvailUntil_string">Funds available until: </string>
+	<string name="added_string">Added: </string>
+	<string name="deducted_string">Deducted: </string>
+	<string name="newBill_string">New Bill</string>
+	<string name="viewLog_string">View Log</string>
+	<string name="setupIncome_string">Setup Income</string>
+	<string name="saveBill_string">Save Bill</string>
+	<string name="payBill_string">Pay Bill</string>
+	<string name="deleteBill_string">Delete Bill</string>
+	<string name="save_string">Save</string>
+	<string name="setFilter_string">Set Filter</string>
+	<string name="deleteLog_string">Delete Log</string>
+	<string name="accept_string">Accept</string>
+	<string name="cancel_string">Cancel</string>
+	<string name="billDetails_string">Bill Details</string>
+	<string name="name_string">Name:</string>
+	<string name="empty_string">Empty</string>
+	<string name="amount_string">Amount:</string>
+	<string name="frequency_string">Frequency:</string>
+	<string name="monthly_string">Monthly</string>
+	<string name="weekly_string">Weekly</string>
+	<string name="dom_string">Day of Month:</string>
+	<string name="dow_string">Day of Week:</string>
+	<string name="na_string">N/A</string>
+	<string name="lastPaid_string">Last Paid:</string>
+	<string name="dueDate_string">Due Date:</string>
+	<string name="pay_string">Pay</string>
+	<string name="incomeDetails_string">Income Details</string>
+	<string name="lastPay_string">Last Pay:</string>
+	<string name="nextPay_string">Next Pay:</string>
+	<string name="cutOffDay_string">Cutoff Date:</string>
+	<string name="createBill_string">Create Bill</string>
+	<string name="editBill_string">Edit Bill</string>
+	<string name="billSaved_string">Bill Saved</string>
+	<string name="billChanged_string">Bill Changed</string>
+	<string name="incomeChanged_string">Income Changed</string>
+	<string name="billName_string">Bill name</string>
+	<string name="billDeleted_string">Bill Deleted</string>
+	<string name="billAmount_string">Bill amount</string>
+	<string name="billFreq_string">Bill frequency</string>
+	<string name="monday_string">Monday</string>
+	<string name="tuesday_string">Tuesday</string>
+	<string name="wednesday_string">Wednesday</string>
+	<string name="thursday_string">Thursday</string>
+	<string name="friday_string">Friday</string>
+	<string name="saturday_string">Saturday</string>
+	<string name="sunday_string">Sunday</string>
+	<string name="chooseDow_string">Choose Day of Week</string>
+	<string name="chooseDom_string">Choose Day of Month</string>
+	<string name="paid_string">Paid:</string>
+	<string name="noLog_string">No Log.</string>
+	<string name="log_string">Log</string>
+	<string name="removeAds_string">Remove Ads</string>
+	<string name="balanceSet_string">Balance Set to:</string>
+	<string name="adjustment_string">Adjustment</string>
+	<string name="incomeAmount_string">Income Amount</string>
+	<string name="chooseCutoffDay_string">Choose Cutoff Day</string>
+	<string name="incomeSetup_string">Income Setup</string>
+
+
+</resources>

@@ -1,0 +1,17 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+		android:id="@+id/save_bill"
+		android:title="@string/saveBill_string"
+		app:showAsAction="always"
+		android:icon="@drawable/save_icon"/>
+	<item
+		android:id="@+id/pay_bill"
+		android:title="@string/payBill_string"
+		app:showAsAction="always"/>
+    <item
+        android:id="@+id/delete_bill"
+        android:title="@string/deleteBill_string"
+		app:showAsAction="never"/>
+    
+</menu>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/MyFinances.iml" filepath="$PROJECT_DIR$/MyFinances.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/MyFinances.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/MyFinances.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/MyFinances.app.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/MyFinances.app.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/MyFinances.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app/MyFinances.app.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/MyFinances.app.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/MyFinances.app.unitTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/Programming.MyFinances.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/Programming.MyFinances.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/Programming.MyFinances.app.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/Programming.MyFinances.app.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/Programming.MyFinances.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app/Programming.MyFinances.app.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/Programming.MyFinances.app.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/Programming.MyFinances.app.unitTest.iml" />
+    </modules>
+  </component>
+</project>

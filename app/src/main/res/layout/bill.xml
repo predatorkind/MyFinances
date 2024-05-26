@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	>
+	<include
+		layout="@layout/toolbar"/>
+	<androidx.core.widget.NestedScrollView
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_below="@+id/toolbar">
+<LinearLayout
+	
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content"
+	android:orientation="vertical"
+	android:gravity="left">
+
+
+	<TextView
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:textAppearance="?android:attr/textAppearanceMedium"
+		android:text="@string/billDetails_string"
+		android:gravity="center_horizontal"
+		android:padding="10dp"/>
+
+	<GridLayout
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:columnCount="2"
+		android:rowCount="8"
+		android:orientation="horizontal"
+		android:layout_margin="10dp"
+		android:padding="10dp"
+		android:useDefaultMargins="true"
+		android:textAlignment="center">
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:text="@string/name_string"
+			android:id="@+id/billTextView1"
+			android:layout_margin="2dp"/>
+
+		<TextView
+			android:layout_width="100dp"
+			android:layout_height="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:text="@string/empty_string"
+			android:id="@+id/billNameText"
+			android:layout_margin="2dp"/>
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:text="@string/amount_string"
+			android:layout_margin="2dp"/>
+
+		<TextView
+			android:layout_width="100dp"
+			android:layout_height="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:text="0"
+			android:id="@+id/billAmountText"
+			android:layout_margin="2dp"/>
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:text="@string/frequency_string"
+			android:layout_margin="2dp"/>
+
+		<TextView
+			android:layout_width="100dp"
+			android:layout_height="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:text="@string/monthly_string"
+			android:id="@+id/billFrequencyText"
+			android:layout_margin="2dp"/>
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:text="@string/dow_string"
+			android:layout_margin="2dp"/>
+
+		<TextView
+			android:layout_width="100dp"
+			android:layout_height="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:text="@string/na_string"
+			android:id="@+id/billDoWText"
+			android:layout_margin="2dp"/>
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:text="@string/dom_string"
+			android:layout_margin="2dp"/>
+
+		<TextView
+			android:layout_width="100dp"
+			android:layout_height="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:text="1"
+			android:id="@+id/billDoMText"
+			android:layout_margin="2dp"/>
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:text="@string/lastPaid_string"
+			android:layout_margin="2dp"/>
+
+		<TextView
+			android:layout_width="100dp"
+			android:layout_height="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:text="@string/na_string"
+			android:id="@+id/billLastPaidText"
+			android:layout_margin="2dp"/>
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:text="@string/dueDate_string"
+			android:layout_margin="2dp"/>
+
+		<TextView
+			android:layout_width="100dp"
+			android:layout_height="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:text="@string/na_string"
+			android:id="@+id/billDueDateText"
+			android:layout_margin="2dp"/>
+
+		<Button
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:text="@string/pay_string"
+			android:height="40dp"
+			android:id="@+id/payButton"
+			android:layout_columnSpan="2"
+			android:layout_row="7"
+			android:layout_gravity="center_horizontal"
+			android:layout_margin="10dp"/>
+
+	</GridLayout>
+	<!--
+	<com.google.android.gms.ads.AdView
+		xmlns:ads="http://schemas.android.com/apk/res-auto"
+		android:id="@+id/adView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_centerHorizontal="true"
+		android:layout_alignParentBottom="true"
+		ads:adSize="LARGE_BANNER"
+		ads:adUnitId="ca-app-pub-6071190261989044/5374088411">
+
+	</com.google.android.gms.ads.AdView>
+	-->
+</LinearLayout>
+
+	</androidx.core.widget.NestedScrollView>
+</RelativeLayout>
+

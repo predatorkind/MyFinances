@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	android:orientation="vertical"
+	android:padding="10dp">
+
+	<TextView
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:text="Text"
+		android:padding="10dp"
+		android:textColor="#000000"
+		android:id="@+id/spinnerdialogLabel"
+		android:layout_margin="5dp"
+		android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
+
+	<Spinner
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:id="@+id/spinnerdialogSpinner"
+		android:layout_margin="5dp"
+		android:padding="10dp"/>
+
+	<RelativeLayout
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content">
+
+		<Button
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:text="@string/accept_string"
+			android:id="@+id/spinnerdialogButton1"
+			android:layout_margin="5dp"/>
+
+		<Button
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:text="@string/cancel_string"
+
+			android:id="@+id/spinnerdialogButton2"
+			android:layout_alignParentRight="true"
+			android:layout_margin="5dp"/>
+
+	</RelativeLayout>
+
+</LinearLayout>
+

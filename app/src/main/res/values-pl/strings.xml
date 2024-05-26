@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Moje Finanse</string>
+    <string name="hello_world">Hello world!</string>
+	<string name="food_string">Jedzenie</string>
+	<string name="shopping_string">Zakupy</string>
+	<string name="installment_string">Rata</string>
+	<string name="savings_string">Oszczędności</string>
+	<string name="transfer_string">Transfer</string>
+
+	<string name="other_string">Inne</string>
+
+	<string name="overtime_string">Nadgodziny</string>
+	<string name="loan_string">Pożyczka</string>
+	<string name="winnings_string">Wygrana</string>
+
+	<string name="addFunds_string">Dodaj Fundusze</string>
+	<string name="subFunds_string">Odejmij Fundusze</string>
+	<string name="setFunds_string">Ustaw Fundusze</string>
+	<string name="invalidAmount_string">Zła kwota!</string>
+	<string name="yourCurBal_string">Twoje obecne saldo.</string>
+	<string name="posOverOf_string">Możliwy debet wysokości:</string>
+	<string name="fundsAvailUntil_string">Fundusze dostepne do: </string>
+	<string name="added_string">Dodano: </string>
+	<string name="deducted_string">Odjęto: </string>
+	<string name="newBill_string">Nowy Rachunek</string>
+	<string name="viewLog_string">Pokaż Dziennik</string>
+	<string name="setupIncome_string">Ustaw Przychody</string>
+	<string name="saveBill_string">Zapisz Rachunek</string>
+	<string name="payBill_string">Zapłać Rachunek</string>
+	<string name="deleteBill_string">Usuń Rachunek</string>
+	<string name="save_string">Zapisz</string>
+	<string name="setFilter_string">Filtruj</string>
+	<string name="deleteLog_string">Usuń Dziennik</string>
+	<string name="accept_string">Akceptuj</string>
+	<string name="cancel_string">Anuluj</string>
+	<string name="billDetails_string">Szczegóły Rachunku</string>
+	<string name="name_string">Nazwa:</string>
+	<string name="empty_string">Pusta</string>
+	<string name="amount_string">Kwota:</string>
+	<string name="frequency_string">Częstotliwość:</string>
+	<string name="monthly_string">Miesięcznie</string>
+	<string name="weekly_string">Tygodniowo</string>
+	<string name="dom_string">Dzień miesiąca:</string>
+	<string name="dow_string">Dzień tygodnia:</string>
+	<string name="na_string">N/D</string>
+	<string name="lastPaid_string">Ostatnio opłacono:</string>
+	<string name="dueDate_string">Termin platności:</string>
+	<string name="pay_string">Zapłać</string>
+	<string name="incomeDetails_string">Szczegóły Przychodów</string>
+	<string name="lastPay_string">Ostatnia wypłata:</string>
+	<string name="nextPay_string">Następna wypłata:</string>
+	<string name="cutOffDay_string">Data Graniczna:</string>
+	<string name="createBill_string">Utwórz Rachunek</string>
+	<string name="editBill_string">Edytuj Rachunek</string>
+	<string name="billSaved_string">Rachunek Zapisany</string>
+	<string name="billChanged_string">Rachunek Zmieniony</string>
+	<string name="incomeChanged_string">Przychody Zmienione</string>
+	<string name="billName_string">Nazwa Rachunku</string>
+	<string name="billDeleted_string">Rachunek Usunięty</string>
+	<string name="billAmount_string">Wysokość Rachunku</string>
+	<string name="billFreq_string">Częstotliwość Rachunku</string>
+	<string name="monday_string">Poniedziałek</string>
+	<string name="tuesday_string">Wtorek</string>
+	<string name="wednesday_string">Środa</string>
+	<string name="thursday_string">Czwartek</string>
+	<string name="friday_string">Piątek</string>
+	<string name="saturday_string">Sobota</string>
+	<string name="sunday_string">Niedziela</string>
+	<string name="chooseDow_string">Wybierz dzień tygodnia</string>
+	<string name="chooseDom_string">Wybierz dzień miesiąca</string>
+	<string name="paid_string">Zapłacono:</string>
+	<string name="noLog_string">Brak Wpisów</string>
+	<string name="log_string">Dziennik</string>
+	<string name="removeAds_string">Usuń Reklamy</string>
+	<string name="balanceSet_string">Saldo zmieniono na:</string>
+    <string name="adjustment_string">Poprawka</string>
+	<string name="incomeAmount_string">Przychód</string>
+	<string name="chooseCutoffDay_string">Wybierz datę graniczną</string>
+	<string name="incomeSetup_string">Przychody</string>
+
+
+</resources>

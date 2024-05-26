@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	android:orientation="vertical"
+	android:gravity="center_horizontal">
+
+	<TextView
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:text="BILL"
+		android:id="@+id/billListItemText"
+		android:layout_margin="2dp"
+		android:layout_alignParentLeft="true"/>
+
+	<Button
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:text="@string/pay_string"
+		android:id="@+id/billListItemButton"
+		android:layout_margin="2dp"
+		android:layout_alignParentRight="true"
+		/>
+
+</RelativeLayout>
+

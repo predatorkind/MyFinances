@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+<LinearLayout
+	
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical"
+	android:gravity="center_horizontal">
+	//android:layout_above="@id/adView">
+
+	<include
+		layout="@layout/toolbar"/>
+
+	<TextView
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:id="@+id/currentDateText"
+		android:gravity="left"
+		android:layout_margin="5dp"/>
+
+	<GridLayout
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:columnCount="2"
+		android:rowCount="2"
+		android:orientation="horizontal"
+		android:layout_margin="10dp"
+		android:padding="10dp"
+		android:useDefaultMargins="true"
+		android:textAlignment="center"
+		android:alignmentMode="alignBounds"
+		android:gravity="center_horizontal">
+
+		<TextView
+			android:id="@+id/currentBalanceText"
+			android:layout_width="100dp"
+			android:layout_height="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:layout_margin="5dp"
+			android:layout_rowWeight="1"
+			android:layout_columnWeight="1"
+			android:layout_gravity="fill"/>
+
+		<TextView
+			android:layout_width="100dp"
+			android:layout_height="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:text="Medium Text"
+			android:id="@+id/funds_available"
+			android:layout_toRightOf="@id/currentBalanceText"
+			android:layout_margin="5dp"/>
+
+		<TextView
+			android:id="@+id/currentBalanceText2"
+			android:layout_width="100dp"
+			android:layout_height="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:layout_margin="5dp"
+			android:text=""/>
+
+		<TextView
+			android:layout_width="100dp"
+			android:layout_height="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:text="0"
+			android:id="@+id/funds_available_till_nextpay"
+			android:layout_toRightOf="@id/currentBalanceText2"
+			android:layout_margin="5dp"/>
+
+	</GridLayout>
+
+	<ListView
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:id="@+id/billsList"
+		android:layout_margin="10dp"/>
+
+	
+
+</LinearLayout>
+	<!--
+        <com.google.android.gms.ads.AdView
+            xmlns:ads="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/adView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true"
+            ads:adSize="LARGE_BANNER"
+            ads:adUnitId="ca-app-pub-6071190261989044/1278416418">
+            ads:adUnitId="ca-app-pub-3940256099942544/6300978111">
+
+
+        </com.google.android.gms.ads.AdView>-->
+	<include layout = "@layout/keyboard_view"/>
+</RelativeLayout>
+

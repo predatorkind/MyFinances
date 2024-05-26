@@ -1,0 +1,66 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:colorBackground">@color/colorBackground</item>
+        <item name="android:buttonStyle">@style/button_style</item>
+        <item name="android:dropDownListViewStyle">@style/popup_style</item>
+        <item name="android:dialogTheme">@style/dialogTheme</item>
+
+    </style>
+
+    <style name="AppTheme.BrandedLaunch" parent="AppTheme">
+
+        <item name="android:windowBackground">@drawable/logo_layerlist</item>
+
+    </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" >
+
+    </style>
+
+    <style name="dialogTheme" parent="Theme.AppCompat.Light.Dialog">
+
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="android:background">@color/colorBackground</item>
+        <item name="android:buttonStyle">@style/button_style</item>
+        <item name="android:windowMinWidthMajor">100%</item>
+        <item name="android:windowMinWidthMinor">100%</item>
+        <item name="android:gravity">bottom</item>
+
+
+
+
+    </style>
+    <style name="button_style" parent="@android:style/Widget.Button">
+        <item name="android:gravity">center_vertical|center_horizontal</item>
+        <item name="android:textColor">@color/button_text_color</item>
+        <item name="android:shadowColor">#FF000000</item>
+        <item name="android:shadowDx">0</item>
+        <item name="android:shadowDy">-1</item>
+        <item name="android:shadowRadius">0.2</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:background">@drawable/button</item>
+        <item name="android:focusable">true</item>
+        <item name="android:clickable">true</item>
+    </style>
+
+    <style name="popup_style" parent="@android:style/Widget.PopupMenu">
+        <item name="android:background">@color/colorBackground</item>
+    </style>
+
+
+</resources>
