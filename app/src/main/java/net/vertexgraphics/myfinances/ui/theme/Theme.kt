@@ -5,6 +5,9 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
+val FocusedControlColor = Color(0xFF48B1EA)
+val AppTextColor = Color(0xFF333333)
+
 val LightColors = lightColorScheme(
     primary = Color(0xFF85BAF2),
     primaryContainer = Color(0xFF85BAF2),
@@ -16,10 +19,15 @@ val LightColors = lightColorScheme(
     surfaceVariant = Color(0xFFC0D0E0),
     surfaceBright = Color(0xFFB7E0FF),
     outlineVariant = Color(0xFF36454F),
-    onPrimary = Color.Black,
-    onSecondary = Color.Black,
-    onBackground = Color.Black,
-    onSurface = Color.Black
+    onPrimary = AppTextColor,
+    onPrimaryContainer = AppTextColor,
+    onSecondary = AppTextColor,
+    onSecondaryContainer = AppTextColor,
+    onTertiary = AppTextColor,
+    onTertiaryContainer = AppTextColor,
+    onBackground = AppTextColor,
+    onSurface = AppTextColor,
+    onSurfaceVariant = AppTextColor
 )
 
 @Composable

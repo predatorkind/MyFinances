@@ -10,6 +10,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.Alignment
+import net.vertexgraphics.myfinances.ui.theme.FocusedControlColor
+import net.vertexgraphics.myfinances.ui.theme.AppTextColor
 
 sealed class AdjustFundsOperation {
     object Add : AdjustFundsOperation()
@@ -45,67 +53,117 @@ fun AdjustFundsDialog(
         selectedCategory = categories.first()
     }
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(title) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(
-                    value = amountText,
-                    onValueChange = { amountText = it },
-                    label = { Text("Amount") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    modifier = Modifier.fillMaxWidth()
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(
+                    width = 0.5.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant,
+                    shape = RectangleShape
+                ),
+            shape = RectangleShape,
+            color = MaterialTheme.colorScheme.surfaceBright,
+            tonalElevation = 0.dp
+        ) {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = title,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.primary)
+                        .padding(horizontal = 24.dp, vertical = 16.dp),
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    style = MaterialTheme.typography.titleLarge
                 )
+                
+                HorizontalDivider(
+                    color = MaterialTheme.colorScheme.outlineVariant,
+                    thickness = 0.5.dp
+                )
+                
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    OutlinedTextField(
+                        value = amountText,
+                        onValueChange = { amountText = it },
+                        label = { Text("Amount") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = FocusedControlColor
+                        )
+                    )
 
-                if (showCategory) {
-                    Box(modifier = Modifier.fillMaxWidth()) {
-                        OutlinedTextField(
-                            value = selectedCategory,
-                            onValueChange = {},
-                            readOnly = true,
-                            label = { Text("Category") },
-                            trailingIcon = {
-                                IconButton(onClick = { expanded = true }) {
-                                    Icon(Icons.Default.ArrowDropDown, "Select Category")
+                    if (showCategory) {
+                        Box(modifier = Modifier.fillMaxWidth()) {
+                            OutlinedTextField(
+                                value = selectedCategory,
+                                onValueChange = {},
+                                readOnly = true,
+                                label = { Text("Category") },
+                                trailingIcon = {
+                                    IconButton(onClick = { expanded = true }) {
+                                        Icon(Icons.Default.ArrowDropDown, "Select Category")
+                                    }
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { expanded = true },
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = FocusedControlColor
+                                )
+                            )
+                            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                                categories.forEach { category ->
+                                    DropdownMenuItem(
+                                        text = { Text(category) },
+                                        onClick = {
+                                            selectedCategory = category
+                                            expanded = false
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        TextButton(onClick = onDismiss) {
+                            Text("Cancel", color = AppTextColor)
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Button(
+                            onClick = {
+                                amountText.toFloatOrNull()?.let {
+                                    val tag = if (showCategory) selectedCategory else null
+                                    onConfirm(it, tag)
+                                    onDismiss()
                                 }
                             },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { expanded = true }
-                        )
-                        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                            categories.forEach { category ->
-                                DropdownMenuItem(
-                                    text = { Text(category) },
-                                    onClick = {
-                                        selectedCategory = category
-                                        expanded = false
-                                    }
-                                )
-                            }
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.tertiary
+                            ),
+                            border = BorderStroke(
+                                width = 0.5.dp,
+                                color = MaterialTheme.colorScheme.outlineVariant
+                            )
+                        ) {
+                            Text("Confirm")
                         }
                     }
                 }
             }
-        },
-        confirmButton = {
-            Button(
-                onClick = {
-                    amountText.toFloatOrNull()?.let {
-                        val tag = if (showCategory) selectedCategory else null
-                        onConfirm(it, tag)
-                        onDismiss()
-                    }
-                }
-            ) {
-                Text("Confirm")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
         }
-    )
+    }
 }

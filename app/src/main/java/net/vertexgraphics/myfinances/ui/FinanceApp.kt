@@ -8,7 +8,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -22,6 +24,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import net.vertexgraphics.myfinances.MainViewModel
 import net.vertexgraphics.myfinances.BillViewModel
 import net.vertexgraphics.myfinances.IncomeViewModel
+import net.vertexgraphics.myfinances.ui.theme.AppTextColor
 
 @Composable
 fun FinanceApp() {
@@ -30,29 +33,36 @@ fun FinanceApp() {
 
     Scaffold(
         bottomBar = {
-            NavigationBar(
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
-                val navBackStackEntry by navController.currentBackStackEntryAsState()
-                val currentDestination = navBackStackEntry?.destination
-                
-                NavigationBarItem(
-                    colors = NavigationBarItemDefaults.colors(
-                        indicatorColor = MaterialTheme.colorScheme.primaryContainer,
-                        selectedTextColor = Color.Black,
-                        unselectedTextColor = Color.Black
-                    ),
-                    icon = { Icon(Icons.Default.List, contentDescription = null, tint = Color.Black) },
-                    label = { Text("Bills", color = Color.Black) },
-                    selected = currentDestination?.hierarchy?.any { it.route == "main" } == true,
-                    onClick = {
-                        navController.navigate("main") {
-                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
+            Column {
+                HorizontalDivider(
+                    color = MaterialTheme.colorScheme.outlineVariant,
+                    thickness = 0.5.dp
                 )
+                NavigationBar(
+                    containerColor = MaterialTheme.colorScheme.primary
+                ) {
+                    val navBackStackEntry by navController.currentBackStackEntryAsState()
+                    val currentDestination = navBackStackEntry?.destination
+                    
+                    NavigationBarItem(
+                        colors = NavigationBarItemDefaults.colors(
+                            indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                            selectedTextColor = AppTextColor,
+                            unselectedTextColor = AppTextColor
+                        ),
+                        icon = { Icon(Icons.Default.List, contentDescription = null, tint = AppTextColor) },
+                        label = { Text("Bills", color = AppTextColor) },
+                        selected = currentDestination?.hierarchy?.any { it.route == "main" } == true,
+                        onClick = {
+                            if (currentDestination?.route != "main") {
+                                navController.navigate("main") {
+                                    popUpTo("main") { inclusive = false }
+                                    launchSingleTop = true
+                                }
+                            }
+                        }
+                    )
+                }
             }
         }
     ) { padding ->

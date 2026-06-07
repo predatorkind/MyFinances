@@ -19,6 +19,10 @@ import net.vertexgraphics.myfinances.IncomeViewModel
 import net.vertexgraphics.myfinances.BuildConfig
 import java.text.SimpleDateFormat
 import java.util.*
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Color
+import net.vertexgraphics.myfinances.ui.theme.FocusedControlColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,6 +38,9 @@ fun IncomeScreen(
         topBar = {
             TopAppBar(
                 title = { Text("Income Settings") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                ),
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
@@ -45,102 +52,147 @@ fun IncomeScreen(
         Column(
             modifier = Modifier
                 .padding(padding)
-                .padding(16.dp)
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            OutlinedTextField(
-                value = income.amount.toString(),
-                onValueChange = { it.toFloatOrNull()?.let { amt -> viewModel.updateAmount(amt) } },
-                label = { Text("Income Amount") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp, bottom = 8.dp),
+                shape = RectangleShape,
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceBright)
             ) {
-                Text("Weekly Pay")
-                Switch(checked = income.weeklyFlag, onCheckedChange = { viewModel.updateFrequency(it) })
-            }
+                Column {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 0.5.dp)
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        OutlinedTextField(
+                            value = income.amount.toString(),
+                            onValueChange = { it.toFloatOrNull()?.let { amt -> viewModel.updateAmount(amt) } },
+                            label = { Text("Income Amount") },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = FocusedControlColor
+                            )
+                        )
 
-            if (income.weeklyFlag) {
-                DayOfWeekSelectorIncome(
-                    selectedDayIndex = income.dayOfWeek,
-                    onDaySelected = { viewModel.updateDayOfWeek(it) }
-                )
-            } else {
-                DayOfMonthSelectorIncome(
-                    selectedDay = income.dayOfMonth,
-                    onDaySelected = { viewModel.updateDayOfMonth(it) }
-                )
-            }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Weekly Pay", style = MaterialTheme.typography.bodyLarge)
+                            Switch(
+                                checked = income.weeklyFlag, 
+                                onCheckedChange = { viewModel.updateFrequency(it) },
+                                colors = SwitchDefaults.colors(
+                                    checkedTrackColor = MaterialTheme.colorScheme.tertiary,
+                                    checkedThumbColor = Color.Black,
+                                    uncheckedThumbColor = Color.Black,
+                                    checkedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                                    uncheckedBorderColor = MaterialTheme.colorScheme.outlineVariant
+                                )
+                            )
+                        }
 
-            OutlinedTextField(
-                value = if (income.lastPay != 0L) sdf.format(Date(income.lastPay)) else "N/A",
-                onValueChange = {},
-                readOnly = true,
-                label = { Text("Last Pay Date") },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = false,
-                colors = OutlinedTextFieldDefaults.colors(
-                    disabledTextColor = MaterialTheme.colorScheme.onSurface,
-                    disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    disabledBorderColor = MaterialTheme.colorScheme.outline
-                )
-            )
+                        if (income.weeklyFlag) {
+                            DayOfWeekSelectorIncome(
+                                selectedDayIndex = income.dayOfWeek,
+                                onDaySelected = { viewModel.updateDayOfWeek(it) }
+                            )
+                        } else {
+                            DayOfMonthSelectorIncome(
+                                selectedDay = income.dayOfMonth,
+                                onDaySelected = { viewModel.updateDayOfMonth(it) }
+                            )
+                        }
 
-            DatePickerItem(
-                label = "Cutoff Date",
-                timestamp = income.cutOffDate,
-                onDateSelected = { viewModel.updateCutOff(it) }
-            )
+                        OutlinedTextField(
+                            value = if (income.lastPay != 0L) sdf.format(Date(income.lastPay)) else "N/A",
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Last Pay Date") },
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = false,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                                disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                disabledBorderColor = MaterialTheme.colorScheme.outline
+                            )
+                        )
 
-            DatePickerItem(
-                label = "Next Pay Date",
-                timestamp = income.nextPay,
-                onDateSelected = { viewModel.updateNextPay(it) }
-            )
+                        DatePickerItem(
+                            label = "Cutoff Date",
+                            timestamp = income.cutOffDate,
+                            onDateSelected = { viewModel.updateCutOff(it) }
+                        )
 
-            DatePickerItem(
-                label = "Cycle Start Date",
-                timestamp = income.cycleStartDate,
-                onDateSelected = { viewModel.updateCycleStart(it) }
-            )
+                        DatePickerItem(
+                            label = "Next Pay Date",
+                            timestamp = income.nextPay,
+                            onDateSelected = { viewModel.updateNextPay(it) }
+                        )
 
-            if (BuildConfig.DEBUG) {
-                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                Text(
-                    text = "Debug Options",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text("Reset with Sample Data on Startup")
-                    Switch(
-                        checked = debugResetOnStartup,
-                        onCheckedChange = { viewModel.updateDebugResetOnStartup(it) }
-                    )
+                        DatePickerItem(
+                            label = "Cycle Start Date",
+                            timestamp = income.cycleStartDate,
+                            onDateSelected = { viewModel.updateCycleStart(it) }
+                        )
+
+                        if (BuildConfig.DEBUG) {
+                            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                            Text(
+                                text = "Debug Options",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text("Reset with Sample Data on Startup")
+                                Switch(
+                                    checked = debugResetOnStartup,
+                                    onCheckedChange = { viewModel.updateDebugResetOnStartup(it) },
+                                    colors = SwitchDefaults.colors(
+                                        checkedTrackColor = MaterialTheme.colorScheme.tertiary,
+                                        checkedThumbColor = Color.Black,
+                                        uncheckedThumbColor = Color.Black,
+                                        checkedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                                        uncheckedBorderColor = MaterialTheme.colorScheme.outlineVariant
+                                    )
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Button(
+                            onClick = {
+                                viewModel.save()
+                                onBack()
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 32.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.tertiary
+                            ),
+                            border = BorderStroke(
+                                width = 0.5.dp,
+                                color = MaterialTheme.colorScheme.outlineVariant
+                            )
+                        ) {
+                            Text("Save")
+                        }
+                    }
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 0.5.dp)
                 }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Button(
-                onClick = {
-                    viewModel.save()
-                    onBack()
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Save")
             }
         }
     }
@@ -165,7 +217,10 @@ fun DayOfWeekSelectorIncome(selectedDayIndex: Int, onDaySelected: (Int) -> Unit)
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { expanded = true }
+                .clickable { expanded = true },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = FocusedControlColor
+            )
         )
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             days.forEachIndexed { index, day ->
@@ -200,7 +255,10 @@ fun DayOfMonthSelectorIncome(selectedDay: Int, onDaySelected: (Int) -> Unit) {
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { expanded = true }
+                .clickable { expanded = true },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = FocusedControlColor
+            )
         )
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             days.forEach { day ->

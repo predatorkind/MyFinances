@@ -1,5 +1,7 @@
 package net.vertexgraphics.myfinances.ui
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
@@ -11,10 +13,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.vertexgraphics.myfinances.BillViewModel
+import net.vertexgraphics.myfinances.ui.theme.FocusedControlColor
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -35,6 +40,9 @@ fun BillEditScreen(
         topBar = {
             TopAppBar(
                 title = { Text(if (billId == -1) "New Bill" else "Edit Bill") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                ),
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
@@ -57,64 +65,105 @@ fun BillEditScreen(
             Column(
                 modifier = Modifier
                     .padding(padding)
-                    .padding(16.dp)
                     .fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                OutlinedTextField(
-                    value = b.name,
-                    onValueChange = { viewModel.updateName(it) },
-                    label = { Text("Name") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                OutlinedTextField(
-                    value = b.amount.toString(),
-                    onValueChange = { 
-                        it.toFloatOrNull()?.let { amount -> viewModel.updateAmount(amount) }
-                    },
-                    label = { Text("Amount") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp, bottom = 8.dp),
+                    shape = RectangleShape,
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceBright)
                 ) {
-                    Text("Weekly")
-                    Switch(checked = b.weekly, onCheckedChange = { viewModel.updateFrequency(it) })
-                }
+                    Column {
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 0.5.dp)
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            OutlinedTextField(
+                                value = b.name,
+                                onValueChange = { viewModel.updateName(it) },
+                                label = { Text("Name") },
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = FocusedControlColor
+                                )
+                            )
 
-                if (b.weekly) {
-                    DayOfWeekSelector(
-                        selectedDay = b.dayOfWeek,
-                        onDaySelected = { viewModel.updateDayOfWeek(it) }
-                    )
-                } else {
-                    DayOfMonthSelector(
-                        selectedDay = b.dayOfMonth,
-                        onDaySelected = { viewModel.updateDayOfMonth(it) }
-                    )
-                }
+                            OutlinedTextField(
+                                value = b.amount.toString(),
+                                onValueChange = { 
+                                    it.toFloatOrNull()?.let { amount -> viewModel.updateAmount(amount) }
+                                },
+                                label = { Text("Amount") },
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = FocusedControlColor
+                                )
+                            )
 
-                val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                Text("Next Due Date: ${sdf.format(Date(b.dueDate))}", style = MaterialTheme.typography.bodyMedium)
-                if (b.lastPaid != 0L) {
-                    Text("Last Paid: ${sdf.format(Date(b.lastPaid))}", style = MaterialTheme.typography.bodySmall)
-                }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text("Weekly", style = MaterialTheme.typography.bodyLarge)
+                                Switch(
+                                    checked = b.weekly, 
+                                    onCheckedChange = { viewModel.updateFrequency(it) },
+                                    colors = SwitchDefaults.colors(
+                                        checkedTrackColor = MaterialTheme.colorScheme.tertiary,
+                                        checkedThumbColor = Color.Black,
+                                        uncheckedThumbColor = Color.Black,
+                                        checkedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                                        uncheckedBorderColor = MaterialTheme.colorScheme.outlineVariant
+                                    )
+                                )
+                            }
 
-                Spacer(modifier = Modifier.weight(1f))
+                            if (b.weekly) {
+                                DayOfWeekSelector(
+                                    selectedDay = b.dayOfWeek,
+                                    onDaySelected = { viewModel.updateDayOfWeek(it) }
+                                )
+                            } else {
+                                DayOfMonthSelector(
+                                    selectedDay = b.dayOfMonth,
+                                    onDaySelected = { viewModel.updateDayOfMonth(it) }
+                                )
+                            }
 
-                Button(
-                    onClick = {
-                        viewModel.saveBill()
-                        onBack()
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Save")
+                            val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                            Text("Next Due Date: ${sdf.format(Date(b.dueDate))}", style = MaterialTheme.typography.bodyMedium)
+                            if (b.lastPaid != 0L) {
+                                Text("Last Paid: ${sdf.format(Date(b.lastPaid))}", style = MaterialTheme.typography.bodySmall)
+                            }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Button(
+                                onClick = {
+                                    viewModel.saveBill()
+                                    onBack()
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 32.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.tertiary
+                                ),
+                                border = BorderStroke(
+                                    width = 0.5.dp,
+                                    color = MaterialTheme.colorScheme.outlineVariant
+                                )
+                            ) {
+                                Text("Save")
+                            }
+                        }
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 0.5.dp)
+                    }
                 }
             }
         }
@@ -140,7 +189,10 @@ fun DayOfWeekSelector(selectedDay: String, onDaySelected: (String) -> Unit) {
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { expanded = true }
+                .clickable { expanded = true },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = FocusedControlColor
+            )
         )
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             days.forEach { day ->
@@ -175,7 +227,10 @@ fun DayOfMonthSelector(selectedDay: Int, onDaySelected: (Int) -> Unit) {
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { expanded = true }
+                .clickable { expanded = true },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = FocusedControlColor
+            )
         )
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             days.forEach { day ->

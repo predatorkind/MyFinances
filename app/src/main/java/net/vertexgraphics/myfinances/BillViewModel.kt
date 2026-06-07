@@ -20,14 +20,17 @@ class BillViewModel @Inject constructor(
 
     fun loadBill(id: Int) {
         if (id == -1) {
+            val initialWeekly = true
+            val initialDayOfMonth = 1
+            val initialDayOfWeek = "Monday"
             _billState.value = BillEntity(
                 name = "",
                 amount = 0f,
-                weekly = true,
-                dayOfMonth = 1,
-                dayOfWeek = "Monday",
+                weekly = initialWeekly,
+                dayOfMonth = initialDayOfMonth,
+                dayOfWeek = initialDayOfWeek,
                 lastPaid = 0,
-                dueDate = System.currentTimeMillis()
+                dueDate = getDueDate(initialWeekly, initialDayOfMonth, initialDayOfWeek)
             )
         } else {
             viewModelScope.launch {
@@ -45,15 +48,24 @@ class BillViewModel @Inject constructor(
     }
 
     fun updateFrequency(weekly: Boolean) {
-        _billState.value = _billState.value?.copy(weekly = weekly)
+        _billState.value = _billState.value?.let { current ->
+            val updated = current.copy(weekly = weekly)
+            updated.copy(dueDate = getDueDate(updated.weekly, updated.dayOfMonth, updated.dayOfWeek))
+        }
     }
 
     fun updateDayOfMonth(day: Int) {
-        _billState.value = _billState.value?.copy(dayOfMonth = day)
+        _billState.value = _billState.value?.let { current ->
+            val updated = current.copy(dayOfMonth = day)
+            updated.copy(dueDate = getDueDate(updated.weekly, updated.dayOfMonth, updated.dayOfWeek))
+        }
     }
 
     fun updateDayOfWeek(day: String) {
-        _billState.value = _billState.value?.copy(dayOfWeek = day)
+        _billState.value = _billState.value?.let { current ->
+            val updated = current.copy(dayOfWeek = day)
+            updated.copy(dueDate = getDueDate(updated.weekly, updated.dayOfMonth, updated.dayOfWeek))
+        }
     }
 
     fun saveBill() {

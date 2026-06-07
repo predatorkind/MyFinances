@@ -1,5 +1,7 @@
 package net.vertexgraphics.myfinances.ui
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -79,16 +81,27 @@ fun MainScreen(
                     containerColor = MaterialTheme.colorScheme.primary
                 ),
                 actions = {
-                    IconButton(onClick = { showAddFundsDialog = true }) {
+                    IconButton(
+                        onClick = { showAddFundsDialog = true },
+                        modifier = Modifier.padding(top = 6.dp)
+                    ) {
                         Icon(painterResource(id = R.drawable.add_funds), contentDescription = "Add Funds", tint = Color.Unspecified)
                     }
-                    IconButton(onClick = { showSubFundsDialog = true }) {
+                    IconButton(
+                        onClick = { showSubFundsDialog = true },
+                        modifier = Modifier.padding(top = 6.dp)
+                    ) {
                         Icon(painterResource(id = R.drawable.sub_funds), contentDescription = "Deduct Funds", tint = Color.Unspecified)
                     }
-                    IconButton(onClick = { showSetFundsDialog = true }) {
+                    IconButton(
+                        onClick = { showSetFundsDialog = true },
+                        modifier = Modifier.padding(top = 6.dp)
+                    ) {
                         Icon(painterResource(id = R.drawable.set_funds), contentDescription = "Set Funds", tint = Color.Unspecified)
                     }
-                    IconButton(onClick = { expanded = true }) {
+                    IconButton(
+                        onClick = { expanded = true },
+                    ) {
                         Icon(Icons.Default.Menu, contentDescription = "Menu")
                     }
                     DropdownMenu(
@@ -123,7 +136,12 @@ fun MainScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { showSubFundsDialog = true },
-                containerColor = MaterialTheme.colorScheme.tertiary
+                containerColor = MaterialTheme.colorScheme.tertiary,
+                modifier = Modifier.border(
+                    width = 0.5.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant,
+                    shape = FloatingActionButtonDefaults.shape
+                )
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.sub_funds), 
@@ -319,6 +337,10 @@ fun BillItem(
                     enabled = canPay,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.tertiary
+                    ),
+                    border = BorderStroke(
+                        width = 0.5.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant
                     )
                 ) {
                     Text(if (isPaid) "Paid" else "Pay")
