@@ -9,6 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import net.vertexgraphics.myfinances.ui.FinanceApp
+import net.vertexgraphics.myfinances.ui.theme.MyFinancesTheme
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -32,7 +33,7 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            MaterialTheme {
+            MyFinancesTheme {
                 Surface(color = MaterialTheme.colorScheme.background) {
                     FinanceApp()
                 }

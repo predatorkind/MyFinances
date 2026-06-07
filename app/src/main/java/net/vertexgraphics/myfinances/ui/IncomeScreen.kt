@@ -105,6 +105,12 @@ fun IncomeScreen(
                 onDateSelected = { viewModel.updateNextPay(it) }
             )
 
+            DatePickerItem(
+                label = "Cycle Start Date",
+                timestamp = income.cycleStartDate,
+                onDateSelected = { viewModel.updateCycleStart(it) }
+            )
+
             if (BuildConfig.DEBUG) {
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                 Text(
@@ -145,8 +151,6 @@ fun IncomeScreen(
 fun DayOfWeekSelectorIncome(selectedDayIndex: Int, onDaySelected: (Int) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     val days = listOf("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday")
-    // Note: Calendar.SUNDAY is 1, Calendar.MONDAY is 2, etc. 
-    // Assuming dayOfWeek in Income is 1-based matching Calendar.SUNDAY
 
     Box(modifier = Modifier.fillMaxWidth()) {
         OutlinedTextField(
@@ -236,7 +240,7 @@ fun DatePickerItem(label: String, timestamp: Long, onDateSelected: (Long) -> Uni
             readOnly = true,
             label = { Text(label) },
             modifier = Modifier.fillMaxWidth(),
-            enabled = false, // Disable typing, only clickable via parent Box
+            enabled = false,
             colors = OutlinedTextFieldDefaults.colors(
                 disabledTextColor = MaterialTheme.colorScheme.onSurface,
                 disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,

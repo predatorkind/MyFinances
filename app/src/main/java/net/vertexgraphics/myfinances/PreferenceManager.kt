@@ -25,6 +25,8 @@ class PreferenceManager @Inject constructor(private val context: Context) {
         val LAST_PAY = longPreferencesKey("last_pay")
         val NEXT_PAY = longPreferencesKey("next_pay")
         val CUTOFF_DATE = longPreferencesKey("cutoff_date")
+        val CYCLE_START_DATE = longPreferencesKey("cycle_start_date")
+        val PAY_BUTTON_DAYS_THRESHOLD = intPreferencesKey("pay_button_days_threshold")
         val DEBUG_RESET_ON_STARTUP = booleanPreferencesKey("debug_reset_on_startup")
         val DEBUG_SAMPLE_DATA_POPULATED = booleanPreferencesKey("debug_sample_data_populated")
     }
@@ -44,7 +46,8 @@ class PreferenceManager @Inject constructor(private val context: Context) {
             dayOfWeek = preferences[PreferencesKeys.INCOME_DAY_OF_WEEK] ?: 1,
             lastPay = preferences[PreferencesKeys.LAST_PAY] ?: 0L,
             nextPay = preferences[PreferencesKeys.NEXT_PAY] ?: 0L,
-            cutOffDate = preferences[PreferencesKeys.CUTOFF_DATE] ?: 0L
+            cutOffDate = preferences[PreferencesKeys.CUTOFF_DATE] ?: 0L,
+            cycleStartDate = preferences[PreferencesKeys.CYCLE_START_DATE] ?: 0L
         )
     }
 
@@ -65,11 +68,16 @@ class PreferenceManager @Inject constructor(private val context: Context) {
             preferences[PreferencesKeys.LAST_PAY] = income.lastPay
             preferences[PreferencesKeys.NEXT_PAY] = income.nextPay
             preferences[PreferencesKeys.CUTOFF_DATE] = income.cutOffDate
+            preferences[PreferencesKeys.CYCLE_START_DATE] = income.cycleStartDate
         }
     }
 
     val debugResetOnStartupFlow: Flow<Boolean> = dataStore.data.map { preferences ->
         preferences[PreferencesKeys.DEBUG_RESET_ON_STARTUP] ?: false
+    }
+
+    val payButtonDaysThresholdFlow: Flow<Int> = dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.PAY_BUTTON_DAYS_THRESHOLD] ?: 3
     }
 
     val debugSampleDataPopulatedFlow: Flow<Boolean> = dataStore.data.map { preferences ->
@@ -79,6 +87,12 @@ class PreferenceManager @Inject constructor(private val context: Context) {
     suspend fun updateDebugResetOnStartup(enabled: Boolean) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.DEBUG_RESET_ON_STARTUP] = enabled
+        }
+    }
+
+    suspend fun updatePayButtonDaysThreshold(days: Int) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.PAY_BUTTON_DAYS_THRESHOLD] = days
         }
     }
 

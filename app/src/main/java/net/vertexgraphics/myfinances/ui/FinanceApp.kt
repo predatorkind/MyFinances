@@ -7,6 +7,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.padding
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -29,28 +30,23 @@ fun FinanceApp() {
 
     Scaffold(
         bottomBar = {
-            NavigationBar {
+            NavigationBar(
+                containerColor = MaterialTheme.colorScheme.primary
+            ) {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentDestination = navBackStackEntry?.destination
                 
                 NavigationBarItem(
-                    icon = { Icon(Icons.Default.List, contentDescription = null) },
-                    label = { Text("Bills") },
+                    colors = NavigationBarItemDefaults.colors(
+                        indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                        selectedTextColor = Color.Black,
+                        unselectedTextColor = Color.Black
+                    ),
+                    icon = { Icon(Icons.Default.List, contentDescription = null, tint = Color.Black) },
+                    label = { Text("Bills", color = Color.Black) },
                     selected = currentDestination?.hierarchy?.any { it.route == "main" } == true,
                     onClick = {
                         navController.navigate("main") {
-                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
-                )
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.Settings, contentDescription = null) },
-                    label = { Text("Income") },
-                    selected = currentDestination?.hierarchy?.any { it.route == "income" } == true,
-                    onClick = {
-                        navController.navigate("income") {
                             popUpTo(navController.graph.findStartDestination().id) { saveState = true }
                             launchSingleTop = true
                             restoreState = true
@@ -66,7 +62,8 @@ fun FinanceApp() {
                     viewModel = mainViewModel,
                     onAddBill = { navController.navigate("edit/-1") },
                     onEditBill = { id -> navController.navigate("edit/$id") },
-                    onViewLog = { navController.navigate("log") }
+                    onViewLog = { navController.navigate("log") },
+                    navController = navController
                 )
             }
             composable(

@@ -7,5 +7,6 @@ data class Income(
     var dayOfWeek: Int,
     var lastPay: Long,
     var nextPay: Long,
-    var cutOffDate: Long
+    var cutOffDate: Long,
+    var cycleStartDate: Long = 0L
 )

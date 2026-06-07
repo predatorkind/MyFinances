@@ -20,18 +20,21 @@ class MainViewModel @Inject constructor(
     val currentBalance: StateFlow<Float> = preferenceManager.balanceFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0f)
 
+    val income: StateFlow<Income?> = preferenceManager.incomeFlow
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    val allLogs: StateFlow<List<LogEntity>> = repository.allLogs
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
     private val _availableFunds = MutableStateFlow(0f)
     val availableFunds: StateFlow<Float> = _availableFunds.asStateFlow()
 
     private val _overdraft = MutableStateFlow(0f)
     val overdraft: StateFlow<Float> = _overdraft.asStateFlow()
 
-    val allLogs: StateFlow<List<LogEntity>> = repository.allLogs
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-
     init {
         viewModelScope.launch {
-            combine(allBills, currentBalance, preferenceManager.incomeFlow) { bills, balance, income ->
+            combine(allBills, currentBalance, income) { bills, balance, income ->
                 calculateFunds(bills, balance, income)
             }.collect()
         }
@@ -40,41 +43,83 @@ class MainViewModel @Inject constructor(
     private fun calculateFunds(bills: List<BillEntity>, balance: Float, income: Income?) {
         if (income == null) return
 
-        var funds = balance
-        var over = balance
-        
-        val cutOffCalendar = GregorianCalendar().apply { timeInMillis = income.cutOffDate }
-        val nextPay = GregorianCalendar().apply { timeInMillis = income.nextPay }
+        _availableFunds.value = balance - calculateTotalBills(bills, income, income.cutOffDate, false)
+        _overdraft.value = balance - calculateTotalBills(bills, income, income.nextPay, false)
+    }
+
+    private fun calculateTotalBills(bills: List<BillEntity>, income: Income, limitTimestamp: Long, onlyFuture: Boolean): Float {
+        var total = 0f
+        val now = Calendar.getInstance()
+        val limit = Calendar.getInstance().apply { timeInMillis = limitTimestamp }
         
         for (bill in bills) {
-            val compareCalendar = GregorianCalendar().apply { timeInMillis = bill.dueDate }
+            val tempDate = Calendar.getInstance().apply { timeInMillis = bill.dueDate }
             
-            // Funds available calculation
-            while (compareCalendar.before(cutOffCalendar)) {
-                funds -= bill.amount
-                if (bill.weekly) compareCalendar.add(Calendar.DAY_OF_MONTH, 7)
-                else compareCalendar.add(Calendar.MONTH, 1)
-            }
-            
-            // Overdraft calculation
-            compareCalendar.timeInMillis = bill.dueDate
-            while (compareCalendar.before(nextPay)) {
-                over -= bill.amount
-                if (bill.weekly) compareCalendar.add(Calendar.DAY_OF_MONTH, 7)
-                else compareCalendar.add(Calendar.MONTH, 1)
+            while (tempDate.before(limit)) {
+                if (!onlyFuture || tempDate.after(now)) {
+                    total += bill.amount
+                }
+                if (bill.weekly) tempDate.add(Calendar.DAY_OF_MONTH, 7)
+                else tempDate.add(Calendar.MONTH, 1)
             }
         }
-        
-        // Add future income to funds available
-        val incomeCompare = GregorianCalendar().apply { timeInMillis = income.nextPay }
-        while (incomeCompare.before(cutOffCalendar)) {
-            funds += income.amount
-            if (income.weeklyFlag) incomeCompare.add(Calendar.DAY_OF_MONTH, 7)
-            else incomeCompare.add(Calendar.MONTH, 1)
-        }
+        return total
+    }
 
-        _availableFunds.value = funds
-        _overdraft.value = over
+    fun getTotalMonthlyBills(bills: List<BillEntity>, income: Income?): Float {
+        if (income == null) return 0f
+        
+        var total = 0f
+        val startPeriod = Calendar.getInstance().apply { timeInMillis = income.cycleStartDate }
+        val endPeriod = startPeriod.clone() as Calendar
+        endPeriod.add(Calendar.MONTH, 1)
+
+        for (bill in bills) {
+            val lastPaidCal = Calendar.getInstance().apply { timeInMillis = bill.lastPaid }
+            val tempDate = if (bill.lastPaid != 0L && lastPaidCal.after(startPeriod)) {
+                lastPaidCal
+            } else {
+                Calendar.getInstance().apply { timeInMillis = bill.dueDate }
+            }
+
+            // Adjust start date for weekly bills if they were paid within the current cycle
+            if (bill.weekly && bill.lastPaid != 0L && lastPaidCal.after(startPeriod)) {
+                while (tempDate.after(startPeriod)) {
+                    tempDate.add(Calendar.DAY_OF_MONTH, -7)
+                }
+            }
+
+            while (tempDate.before(endPeriod)) {
+                if (!tempDate.before(startPeriod)) {
+                    total += bill.amount
+                }
+                if (bill.weekly) tempDate.add(Calendar.DAY_OF_MONTH, 7)
+                else tempDate.add(Calendar.MONTH, 1)
+            }
+        }
+        return total
+    }
+
+    fun getBillsLeftThisMonth(bills: List<BillEntity>, income: Income?): Float {
+        if (income == null) return 0f
+        
+        var total = 0f
+        val startPeriod = Calendar.getInstance().apply { timeInMillis = income.cycleStartDate }
+        val endPeriod = startPeriod.clone() as Calendar
+        endPeriod.add(Calendar.MONTH, 1)
+
+        for (bill in bills) {
+            val dueDate = Calendar.getInstance().apply { timeInMillis = bill.dueDate }
+            val tempDate = dueDate
+            
+            while (tempDate.before(endPeriod)) {
+                total += bill.amount
+
+                if (bill.weekly) tempDate.add(Calendar.DAY_OF_MONTH, 7)
+                else tempDate.add(Calendar.MONTH, 1)
+            }
+        }
+        return total
     }
 
     fun addFunds(amount: Float, tag: String) {
@@ -93,6 +138,13 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun setFunds(amount: Float) {
+        viewModelScope.launch {
+            preferenceManager.updateBalance(amount)
+            repository.insertLog("Balance Set to: $amount")
+        }
+    }
+
     fun payBill(bill: BillEntity) {
         viewModelScope.launch {
             val newBalance = currentBalance.value - bill.amount
@@ -100,7 +152,7 @@ class MainViewModel @Inject constructor(
             
             val nextDueDate = GregorianCalendar().apply {
                 timeInMillis = bill.dueDate
-                if (bill.weekly) add(Calendar.WEEK_OF_MONTH, 1)
+                if (bill.weekly) add(Calendar.DAY_OF_MONTH, 7)
                 else add(Calendar.MONTH, 1)
             }.timeInMillis
             

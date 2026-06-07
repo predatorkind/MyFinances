@@ -14,7 +14,7 @@ class IncomeViewModel @Inject constructor(
     private val preferenceManager: PreferenceManager
 ) : ViewModel() {
 
-    private val _incomeState = MutableStateFlow(Income(0f, false, 1, 1, 0, 0, 0))
+    private val _incomeState = MutableStateFlow(Income(0f, false, 1, 1, 0, 0, 0, 0L))
     val incomeState: StateFlow<Income> = _incomeState.asStateFlow()
 
     init {
@@ -37,10 +37,13 @@ class IncomeViewModel @Inject constructor(
             calculateNextPayMonthly(currentState.dayOfMonth)
         }
         val newCutOff = calculateCutOffDate(newNextPay)
+        val newCycleStart = calculateCycleStart(weekly, currentState.dayOfMonth, newNextPay)
+        
         _incomeState.value = currentState.copy(
             weeklyFlag = weekly,
             nextPay = newNextPay,
-            cutOffDate = newCutOff
+            cutOffDate = newCutOff,
+            cycleStartDate = newCycleStart
         )
     }
 
@@ -48,10 +51,13 @@ class IncomeViewModel @Inject constructor(
         val currentState = _incomeState.value
         val newNextPay = calculateNextPayMonthly(day)
         val newCutOff = calculateCutOffDate(newNextPay)
+        val newCycleStart = calculateCycleStart(false, day, newNextPay)
+        
         _incomeState.value = currentState.copy(
             dayOfMonth = day,
             nextPay = newNextPay,
-            cutOffDate = newCutOff
+            cutOffDate = newCutOff,
+            cycleStartDate = newCycleStart
         )
     }
 
@@ -66,6 +72,25 @@ class IncomeViewModel @Inject constructor(
         )
     }
 
+    private fun calculateCycleStart(weekly: Boolean, dayOfMonth: Int, nextPay: Long): Long {
+        if (weekly) {
+            val cal = Calendar.getInstance()
+            cal.set(Calendar.DAY_OF_MONTH, 1)
+            cal.set(Calendar.HOUR_OF_DAY, 0)
+            cal.set(Calendar.MINUTE, 0)
+            cal.set(Calendar.SECOND, 0)
+            cal.set(Calendar.MILLISECOND, 0)
+            return cal.timeInMillis
+        } else {
+            val cal = Calendar.getInstance()
+            cal.timeInMillis = nextPay
+            cal.add(Calendar.MONTH, -1)
+            // Ensure we anchor to the requested day if possible, or keep the original pay date anchored
+            cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+            return cal.timeInMillis
+        }
+    }
+
     fun updateLastPay(time: Long) {
         _incomeState.value = _incomeState.value.copy(lastPay = time)
     }
@@ -76,6 +101,10 @@ class IncomeViewModel @Inject constructor(
 
     fun updateCutOff(time: Long) {
         _incomeState.value = _incomeState.value.copy(cutOffDate = time)
+    }
+
+    fun updateCycleStart(time: Long) {
+        _incomeState.value = _incomeState.value.copy(cycleStartDate = time)
     }
 
     private fun calculateNextPayMonthly(dayOfMonth: Int): Long {
@@ -117,8 +146,6 @@ class IncomeViewModel @Inject constructor(
         val targetCal = todayZero.clone() as Calendar
         val currentDayOfWeek = targetCal.get(Calendar.DAY_OF_WEEK)
         
-        // Use add(DAY_OF_MONTH, diff) to avoid the field precedence priority issue 
-        // that ignores set(DAY_OF_WEEK) on predefined/cloned instances.
         val diff = dayOfWeek - currentDayOfWeek
         targetCal.add(Calendar.DAY_OF_MONTH, diff)
         
