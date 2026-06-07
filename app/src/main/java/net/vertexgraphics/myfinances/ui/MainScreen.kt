@@ -1,14 +1,15 @@
 package net.vertexgraphics.myfinances.ui
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -16,15 +17,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import androidx.compose.ui.res.painterResource
 import net.vertexgraphics.myfinances.R
 import net.vertexgraphics.myfinances.BillEntity
-import net.vertexgraphics.myfinances.Income
+import net.vertexgraphics.myfinances.IncomeEntity
+import net.vertexgraphics.myfinances.AccountEntity
 import net.vertexgraphics.myfinances.MainViewModel
+import net.vertexgraphics.myfinances.BuildConfig
+import net.vertexgraphics.myfinances.ui.theme.AppTextColor
 import java.text.SimpleDateFormat
 import java.util.*
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,16 +37,23 @@ import androidx.compose.ui.tooling.preview.Preview
 @Composable
 fun MainScreen(
     viewModel: MainViewModel,
+    selectedTab: String,
     onAddBill: () -> Unit,
     onEditBill: (Int) -> Unit,
+    onAddIncome: () -> Unit,
+    onEditIncome: (Int) -> Unit,
     onViewLog: () -> Unit,
     navController: NavController
 ) {
     val bills by viewModel.allBills.collectAsStateWithLifecycle()
-    val balance by viewModel.currentBalance.collectAsStateWithLifecycle()
+    val mainAccount by viewModel.mainAccount.collectAsStateWithLifecycle()
     val availableFunds by viewModel.availableFunds.collectAsStateWithLifecycle()
     val overdraft by viewModel.overdraft.collectAsStateWithLifecycle()
-    val income by viewModel.income.collectAsStateWithLifecycle()
+    val primaryIncome by viewModel.primaryIncome.collectAsStateWithLifecycle()
+    val allIncomes by viewModel.allIncomes.collectAsStateWithLifecycle()
+    val allAccounts by viewModel.allAccounts.collectAsStateWithLifecycle()
+
+    val balance = mainAccount?.balance ?: 0f
 
     var showAddFundsDialog by remember { mutableStateOf(false) }
     var showSubFundsDialog by remember { mutableStateOf(false) }
@@ -122,33 +133,53 @@ fun MainScreen(
                                 expanded = false
                             }
                         )
-                        DropdownMenuItem(
-                            text = { Text("Setup Income") },
-                            onClick = {
-                                navController.navigate("income")
-                                expanded = false
-                            }
-                        )
+                        if (BuildConfig.DEBUG) {
+                            DropdownMenuItem(
+                                text = { Text("Reset Sample Data") },
+                                onClick = {
+                                    viewModel.resetDebugData()
+                                    expanded = false
+                                }
+                            )
+                        }
                     }
                 }
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { showSubFundsDialog = true },
-                containerColor = MaterialTheme.colorScheme.tertiary,
-                modifier = Modifier.border(
-                    width = 0.5.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant,
-                    shape = FloatingActionButtonDefaults.shape
-                )
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.sub_funds), 
-                    contentDescription = "Deduct Funds", 
-                    tint = Color.Unspecified,
-                    modifier = Modifier.padding(top = 2.dp, end = 4.dp)
-                )
+            if (selectedTab == "incomes") {
+                FloatingActionButton(
+                    onClick = onAddIncome,
+                    containerColor = MaterialTheme.colorScheme.tertiary,
+                    modifier = Modifier.border(
+                        width = 0.5.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant,
+                        shape = FloatingActionButtonDefaults.shape
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add Income Source",
+                        tint = AppTextColor
+                    )
+                }
+            } else {
+                FloatingActionButton(
+                    onClick = { showSubFundsDialog = true },
+                    containerColor = MaterialTheme.colorScheme.tertiary,
+                    modifier = Modifier.border(
+                        width = 0.5.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant,
+                        shape = FloatingActionButtonDefaults.shape
+                    )
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.sub_funds), 
+                        contentDescription = "Deduct Funds", 
+                        tint = Color.Unspecified,
+                        modifier = Modifier.padding(top = 2.dp, end = 4.dp)
+                    )
+                }
             }
         }
     ) { padding ->
@@ -161,17 +192,27 @@ fun MainScreen(
                 balance = balance,
                 available = availableFunds,
                 overdraft = overdraft,
-                totalBillsProvider = { viewModel.getTotalMonthlyBills(bills, income) },
-                leftBillsProvider = { viewModel.getBillsLeftThisMonth(bills, income) }
+                totalBillsProvider = { viewModel.getTotalMonthlyBills(bills, primaryIncome) },
+                leftBillsProvider = { viewModel.getBillsLeftThisMonth(bills, primaryIncome) }
             )
             
-            BillList(
-                bills = bills,
-                income = income,
-                onBillClick = { onEditBill(it.id) },
-                onPayClick = { viewModel.payBill(it) },
-                daysThreshold = 3
-            )
+            if (selectedTab == "incomes") {
+                IncomeList(
+                    incomes = allIncomes,
+                    accounts = allAccounts,
+                    onIncomeClick = { onEditIncome(it.id) },
+                    onDeleteClick = { viewModel.deleteIncome(it) }
+                )
+            } else {
+                BillList(
+                    bills = bills,
+                    incomes = allIncomes,
+                    accounts = allAccounts,
+                    onBillClick = { onEditBill(it.id) },
+                    onPayClick = { viewModel.payBill(it) },
+                    daysThreshold = 3
+                )
+            }
         }
     }
 }
@@ -208,7 +249,6 @@ fun SummaryCard(
             
             Spacer(modifier = Modifier.height(8.dp))
 
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
@@ -229,16 +269,12 @@ fun SummaryCard(
                     Spacer(modifier = Modifier.height(8.dp))
                     SummaryItem("Bills Left This Month", leftBillsProvider())
                 }
-
             }
-            
-
         }
         HorizontalDivider(
             color = MaterialTheme.colorScheme.outlineVariant,
             thickness = 0.5.dp
         )
-
     }
 }
 
@@ -258,18 +294,29 @@ fun SummaryItem(label: String, amount: Float) {
 @Composable
 fun BillList(
     bills: List<BillEntity>,
-    income: Income?,
+    incomes: List<IncomeEntity>,
+    accounts: List<AccountEntity>,
     onBillClick: (BillEntity) -> Unit,
     onPayClick: (BillEntity) -> Unit,
     daysThreshold: Int
 ) {
+    val accountMap = remember(accounts) { accounts.associate { it.id to it.name } }
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-//        contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(bills) { bill ->
-            BillItem(bill, income, onBillClick, onPayClick, daysThreshold)
+            val billIncome = incomes.filter { it.accountId == bill.accountId }.minByOrNull { it.nextPay }
+            val cycleStartDate = billIncome?.cycleStartDate ?: 0L
+            val accountName = accountMap[bill.accountId] ?: "Unknown Account"
+            BillItem(
+                bill = bill,
+                cycleStartDate = cycleStartDate,
+                accountName = accountName,
+                onClick = onBillClick,
+                onPay = onPayClick,
+                daysThreshold = daysThreshold
+            )
         }
     }
 }
@@ -277,7 +324,8 @@ fun BillList(
 @Composable
 fun BillItem(
     bill: BillEntity,
-    income: Income?,
+    cycleStartDate: Long,
+    accountName: String,
     onClick: (BillEntity) -> Unit,
     onPay: (BillEntity) -> Unit,
     daysThreshold: Int = 3
@@ -289,8 +337,7 @@ fun BillItem(
     val dueDateCal = Calendar.getInstance().apply { timeInMillis = bill.dueDate }
     val daysUntilDue = ((dueDateCal.timeInMillis - now.timeInMillis) / (24 * 60 * 60 * 1000)).toInt()
     
-    // Check if paid in current cycle: lastPaid must be after cycle start
-    val isPaid = income != null && bill.lastPaid >= income.cycleStartDate
+    val isPaid = cycleStartDate != 0L && bill.lastPaid >= cycleStartDate
     val canPay = daysUntilDue <= daysThreshold && !isPaid
     
     Card(
@@ -320,16 +367,29 @@ fun BillItem(
                     Text(
                         bill.name, 
                         style = MaterialTheme.typography.titleMedium,
-                        textDecoration = if (isPaid) androidx.compose.ui.text.style.TextDecoration.LineThrough else null
+                        textDecoration = if (isPaid) androidx.compose.ui.text.style.TextDecoration.LineThrough else null,
+                        color = AppTextColor
                     )
-                    Text("Due: $dueDateStr", style = MaterialTheme.typography.bodySmall)
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("Due: $dueDateStr", style = MaterialTheme.typography.bodySmall, color = AppTextColor.copy(alpha = 0.7f))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "[$accountName]",
+                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
                 }
 
                 Text(
                     text = String.format("%.02f", bill.amount), 
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(start = 0.dp, end = 30.dp),
-                    textAlign = androidx.compose.ui.text.style.TextAlign.End
+                    textAlign = androidx.compose.ui.text.style.TextAlign.End,
+                    color = AppTextColor
                 )
                 
                 Button(
@@ -344,6 +404,123 @@ fun BillItem(
                     )
                 ) {
                     Text(if (isPaid) "Paid" else "Pay")
+                }
+            }
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant,
+                thickness = 0.5.dp
+            )
+        }
+    }
+}
+
+@Composable
+fun IncomeList(
+    incomes: List<IncomeEntity>,
+    accounts: List<AccountEntity>,
+    onIncomeClick: (IncomeEntity) -> Unit,
+    onDeleteClick: (IncomeEntity) -> Unit
+) {
+    val accountMap = remember(accounts) { accounts.associate { it.id to it.name } }
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(incomes) { income ->
+            val accountName = accountMap[income.accountId] ?: "Unknown Account"
+            IncomeItem(
+                income = income,
+                accountName = accountName,
+                onClick = onIncomeClick,
+                onDelete = onDeleteClick
+            )
+        }
+    }
+}
+
+@Composable
+fun IncomeItem(
+    income: IncomeEntity,
+    accountName: String,
+    onClick: (IncomeEntity) -> Unit,
+    onDelete: (IncomeEntity) -> Unit
+) {
+    val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    val nextPayStr = sdf.format(Date(income.nextPay))
+    val frequencyText = if (income.weeklyFlag) {
+        val days = listOf("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday")
+        val dayName = days.getOrNull(income.dayOfWeek - 1) ?: "Weekly"
+        "Weekly ($dayName)"
+    } else {
+        "Monthly (Day ${income.dayOfMonth})"
+    }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick(income) },
+        shape = RectangleShape,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceBright)
+    ) {
+        Column {
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.outlineVariant,
+                thickness = 0.5.dp
+            )
+            Row(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = income.name.ifBlank { "Income Source" },
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = AppTextColor
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = frequencyText,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = AppTextColor.copy(alpha = 0.7f)
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "Next: $nextPayStr",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = AppTextColor.copy(alpha = 0.7f)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "[$accountName]",
+                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    Text(
+                        text = String.format("%.02f", income.amount),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = AppTextColor,
+                        modifier = Modifier.padding(end = 16.dp)
+                    )
+                    IconButton(onClick = { onDelete(income) }) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Delete Income",
+                            tint = AppTextColor
+                        )
+                    }
                 }
             }
             HorizontalDivider(
@@ -383,7 +560,8 @@ fun BillItemPreview() {
                 lastPaid = 0,
                 dueDate = System.currentTimeMillis()
             ),
-            income = null,
+            cycleStartDate = 0L,
+            accountName = "Main Account",
             onClick = {},
             onPay = {}
         )

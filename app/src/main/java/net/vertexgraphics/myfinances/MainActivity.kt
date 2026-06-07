@@ -24,11 +24,15 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var preferenceManager: PreferenceManager
 
+    @Inject
+    lateinit var repository: FinanceRepository
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
         lifecycleScope.launch {
             dataMigrator.migrateIfNeeded()
+            repository.checkAndProcessIncomes()
             DebugSampleData.populateIfNeeded(database, preferenceManager)
         }
 

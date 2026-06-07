@@ -30,6 +30,16 @@ object DatabaseModule {
     }
 
     @Provides
+    fun provideAccountDao(database: MyFinancesDatabase): AccountDao {
+        return database.accountDao()
+    }
+
+    @Provides
+    fun provideIncomeDao(database: MyFinancesDatabase): IncomeDao {
+        return database.incomeDao()
+    }
+
+    @Provides
     @Singleton
     fun providePreferenceManager(@ApplicationContext context: Context): PreferenceManager {
         return PreferenceManager(context)

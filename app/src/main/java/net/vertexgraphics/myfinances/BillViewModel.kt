@@ -3,9 +3,7 @@ package net.vertexgraphics.myfinances
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
@@ -18,22 +16,28 @@ class BillViewModel @Inject constructor(
     private val _billState = MutableStateFlow<BillEntity?>(null)
     val billState: StateFlow<BillEntity?> = _billState.asStateFlow()
 
+    val allAccounts: StateFlow<List<AccountEntity>> = repository.allAccounts
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
     fun loadBill(id: Int) {
-        if (id == -1) {
-            val initialWeekly = true
-            val initialDayOfMonth = 1
-            val initialDayOfWeek = "Monday"
-            _billState.value = BillEntity(
-                name = "",
-                amount = 0f,
-                weekly = initialWeekly,
-                dayOfMonth = initialDayOfMonth,
-                dayOfWeek = initialDayOfWeek,
-                lastPaid = 0,
-                dueDate = getDueDate(initialWeekly, initialDayOfMonth, initialDayOfWeek)
-            )
-        } else {
-            viewModelScope.launch {
+        viewModelScope.launch {
+            if (id == -1) {
+                val mainAcc = repository.getMainAccount()
+                val mainAccId = mainAcc?.id ?: 0
+                val initialWeekly = true
+                val initialDayOfMonth = 1
+                val initialDayOfWeek = "Monday"
+                _billState.value = BillEntity(
+                    name = "",
+                    amount = 0f,
+                    weekly = initialWeekly,
+                    dayOfMonth = initialDayOfMonth,
+                    dayOfWeek = initialDayOfWeek,
+                    lastPaid = 0,
+                    dueDate = getDueDate(initialWeekly, initialDayOfMonth, initialDayOfWeek),
+                    accountId = mainAccId
+                )
+            } else {
                 _billState.value = repository.getBillById(id)
             }
         }
@@ -68,6 +72,10 @@ class BillViewModel @Inject constructor(
         }
     }
 
+    fun updateAccountId(accountId: Int) {
+        _billState.value = _billState.value?.copy(accountId = accountId)
+    }
+
     fun saveBill() {
         val bill = _billState.value ?: return
         val dueDate = getDueDate(bill.weekly, bill.dayOfMonth, bill.dayOfWeek)
@@ -92,8 +100,18 @@ class BillViewModel @Inject constructor(
     }
 
     private fun getDueDate(weekly: Boolean, dayNumber: Int, day: String): Long {
-        val dueDateCalendar = GregorianCalendar()
-        val currentCalendar = GregorianCalendar()
+        val dueDateCalendar = GregorianCalendar().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        val currentCalendar = GregorianCalendar().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
 
         if (weekly) {
             val dayOfWeek = when (day) {
@@ -110,9 +128,12 @@ class BillViewModel @Inject constructor(
                 dueDateCalendar.add(Calendar.DAY_OF_WEEK, 7)
             }
         } else {
-            dueDateCalendar.set(Calendar.DAY_OF_MONTH, dayNumber)
+            val maxDay = dueDateCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+            dueDateCalendar.set(Calendar.DAY_OF_MONTH, minOf(dayNumber, maxDay))
             if (dueDateCalendar.before(currentCalendar)) {
                 dueDateCalendar.add(Calendar.MONTH, 1)
+                val newMaxDay = dueDateCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+                dueDateCalendar.set(Calendar.DAY_OF_MONTH, minOf(dayNumber, newMaxDay))
             }
         }
         return dueDateCalendar.timeInMillis
